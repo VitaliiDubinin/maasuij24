@@ -43,7 +43,7 @@ function validateUser(user) {
   };
 }
 
-const Rootes = () => {
+const RouteVariant = () => {
 
   const [validationErrors, setValidationErrors] = useState({});
 
@@ -313,4 +313,4 @@ function useDeleteUser() {
   });
 }
 
-export default memo(Rootes);
+export default memo(RouteVariant);
