@@ -1,0 +1,40 @@
+.line-container {
+    display: flex;
+    flex-direction: column;
+    /* Arrange dots vertically */
+    align-items: left;
+     width: '20px';
+
+    /* Center the dots horizontally */
+}
+
+.dot {
+    display: flex;
+    align-items: left;
+    position: relative;
+    margin-bottom: 20px;
+/* margin-left: 4px;
+    /* Adjust spacing between dots */
+}
+
+.label {
+    margin-left: 10px;
+    /* Add space between dot and value label */
+}
+
+.dot:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    /* Width of the line */
+    height: 20px;
+    /* Height of the line */
+    background-color: red;
+    margin-left: -18px;
+    /* Change the color as needed */
+    z-index: -1;
+}
+

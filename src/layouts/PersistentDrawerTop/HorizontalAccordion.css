@@ -1,0 +1,34 @@
+.horizontal-accordion {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    /* Items align at the top */
+}
+
+.accordion-item {
+    margin-right: 16px;
+}
+
+.accordion-title {
+    cursor: pointer;
+    padding: 8px;
+    background-color: #00966e;
+    color: white;
+}
+
+.expanded {
+    margin-right: -100px;
+    /* Adjust the margin as needed to make room for sub-items */
+}
+
+.sub-items {
+    display: none;
+    background-color: white;
+    border: 1px solid #ccc;
+    padding: 8px;
+    z-index: 1;
+}
+
+.expanded .sub-items {
+    display: block;
+}

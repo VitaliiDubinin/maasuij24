@@ -1,0 +1,178 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Lato';
+    -webkit-font-smoothing: antialiased;
+    -moz-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizelegibility;
+}
+
+ul.accordion {
+    display: flex;
+    min-height: 10vh;
+    max-height: 10vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    list-style-type: none;
+}
+
+li.section {
+    flex: 1;
+    min-width: 10rem;
+    /* Predefined size for collapsed sections */
+    display: flex;
+    align-items: stretch;
+    padding: 3rem;
+    background: #E74C3C;
+    cursor: pointer;
+    transition: all .5s ease;
+}
+
+li.section:hover {
+    background: #C0392B;
+    /* Darken the background color on hover */
+}
+
+li.section.active {
+    flex: 5;
+    background: #fff;
+    cursor: default;
+}
+
+li.section.active h2 {
+    color: #E74C3C;
+}
+
+li.section.active .section-content {
+    flex: 4;
+    opacity: 1;
+    transform: scaleX(1);
+    color: #E74C3C;
+}
+
+.section-title {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    color: white;
+}
+
+.section-title h2 {
+    margin: 0;
+
+    white-space: nowrap;
+}
+
+.section-content {
+    flex: 1;
+    display: flex;
+    align-items: center;
+
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    transition: all .25s .1s ease-out;
+}
+
+/* Styling for sub-accordion */
+ul.sub-accordion {
+    display: flex;
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+li.sub-section {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    min-width: 10rem;
+    /* Set a minimum width for sub-sections */
+    min-height: 60px;
+    /* Set a minimum height for sub-sections */
+    padding: 10px;
+    //background: #E74C3C;
+    cursor: pointer;
+    transition: all .5s ease;
+
+}
+
+li.sub-section:hover {
+    background: #C0392B;
+    /* Darken the background color on hover */
+}
+
+li.sub-section.active {
+    flex: 5;
+    background: #fff;
+    cursor: default;
+}
+
+li.sub-section.active h2 {
+    color: #E74C3C;
+
+}
+
+li.sub-section.active .section-content {
+    flex: 4;
+    opacity: 1;
+    transform: scaleX(1);
+    color: #E74C3C;
+
+}
+
+@media (max-width: 768px) {
+    ul.accordion {
+        flex-direction: column;
+        /* Display sections vertically on smaller screens */
+    }
+
+    li.section {
+        flex: 1;
+        min-width: 300px;
+        /* Predefined size for collapsed sections */
+        display: flex;
+        align-items: stretch;
+        padding: 3rem;
+        background: #E74C3C;
+        cursor: pointer;
+        transition: all .5s ease;
+    }
+
+    li.section.active {
+        flex: 5;
+        /* Larger size for expanded section */
+        background: #fff;
+        cursor: default;
+    }
+
+    .section-content {
+        flex: 1;
+    }
+}
+
+body {
+    font-size: 1rem;
+}
+
+/* Define font size for smaller screens (e.g., mobile devices) */
+@media (max-width: 768px) {
+    body {
+        font-size: .5rem;
+    }
+}
+
+/* Define font size for larger screens (e.g., tablets and desktops) */
+@media (min-width: 1200px) {
+    body {
+        font-size: 1rem;
+    }
+}

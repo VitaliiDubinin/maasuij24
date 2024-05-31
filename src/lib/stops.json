@@ -1,0 +1,59 @@
+{"stops":[
+    {
+        "number": 1,
+        "abbreviation": "DDRS",
+        "address": "Bus Stop 1",
+        "depot": false,
+        "persistent": {
+            "id": 5,
+            "name": "Piccadilly",
+            "description": null,
+            "creator": 10,
+            "locales": [],
+            "active": true
+        }
+    },
+    {
+        "number": 2,
+        "abbreviation": "LGBT",
+        "address": "Bus Stop 2",
+        "depot": false,
+        "persistent": {
+            "id": 6,
+            "name": "34th Avenue",
+            "description": null,
+            "creator": 10,
+            "locales": [],
+            "active": true
+        }
+    },
+    {
+        "number": 3,
+        "abbreviation": "ZGRB",
+        "address": "Bus Stop 3",
+        "depot": false,
+        "persistent": {
+            "id": 7,
+            "name": "Lakkila",
+            "description": null,
+            "creator": 10,
+            "locales": [],
+            "active": true
+        }
+    },
+    {
+        "number": 4,
+        "abbreviation": "HSLK",
+        "address": "Bus Stop 4",
+        "depot": false,
+        "persistent": {
+            "id": 8,
+            "name": "Santiago de Compostilya",
+            "description": null,
+            "creator": 10,
+            "locales": [],
+            "active": true
+        }
+    }
+]
+}

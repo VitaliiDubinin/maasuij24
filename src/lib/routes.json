@@ -1,0 +1,80 @@
+[
+    {
+        "routeDisplayedNumber": "987E",
+        "startStopId": 2,
+        "finishStopId": 3,
+        "persistent": {
+            "id": 86,
+            "name": "987",
+            "description": "Mystery Route",
+            "creator": 10,
+            "locales": [],
+            "active": false
+        }
+    },
+    {
+        "routeDisplayedNumber": "321F",
+        "startStopId": 8,
+        "finishStopId": 7,
+        "persistent": {
+            "id": 87,
+            "name": "321",
+            "description": "Historic Route",
+            "creator": 10,
+            "locales": [],
+            "active": true
+        }
+    },
+    {
+        "routeDisplayedNumber": "654G",
+        "startStopId": 1,
+        "finishStopId": 9,
+        "persistent": {
+            "id": 88,
+            "name": "654",
+            "description": "Legendary Route",
+            "creator": 10,
+            "locales": [],
+            "active": true
+        }
+    },
+    {
+        "routeDisplayedNumber": "753H",
+        "startStopId": 6,
+        "finishStopId": 5,
+        "persistent": {
+            "id": 89,
+            "name": "753",
+            "description": "Enigmatic Route",
+            "creator": 10,
+            "locales": [],
+            "active": false
+        }
+    },
+    {
+        "routeDisplayedNumber": "159I",
+        "startStopId": 4,
+        "finishStopId": 2,
+        "persistent": {
+            "id": 90,
+            "name": "159",
+            "description": "Secret Route",
+            "creator": 10,
+            "locales": [],
+            "active": true
+        }
+    },
+    {
+        "routeDisplayedNumber": "357J",
+        "startStopId": 7,
+        "finishStopId": 1,
+        "persistent": {
+            "id": 91,
+            "name": "357",
+            "description": "Magical Route",
+            "creator": 10,
+            "locales": [],
+            "active": true
+        }
+    }
+]
