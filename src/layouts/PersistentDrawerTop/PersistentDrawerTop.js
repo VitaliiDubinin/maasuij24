@@ -46,6 +46,7 @@ const essentailNav = {
   Stops: ['', 'stops'],
   'Stop Points': ['', 'spoints'],
   Routes: ['', 'routes'],
+  'Route Variants': ['', 'routevariants'],
 
   Schedules: [<ScheduleSendIcon />, 'schedules'],
   Tools: [<ConstructionIcon />, 'tools'],

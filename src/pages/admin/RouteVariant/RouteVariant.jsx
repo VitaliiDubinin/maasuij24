@@ -1,4 +1,5 @@
-import React, { memo, useMemo, useState } from "react";
+import React from "react";
+import { memo, useMemo, useState } from "react";
 import {
   MRT_EditActionButtons,
   MaterialReactTable,
@@ -13,163 +14,296 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import {
-
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { fakeData, usStates } from "./makeData.ts";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import Checkbox from "@mui/material/Checkbox";
 
+import {
+  getData,
+  createEntityForm,
+  updateEntityForm,
+  deleteEntity,
+} from "../../../lib/fetch";
 
-const validateRequired = (value) => !!value.length;
-const validateEmail = (email) =>
-  !!email.length &&
-  email
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    );
+const validateRequired = (value) =>
+  value !== undefined && value !== null && value !== "";
 
-function validateUser(user) {
+function validateEntity(entity) {
   return {
-    firstName: !validateRequired(user.firstName)
-      ? "First Name is Required"
+    number: !validateRequired(entity.number) ? "Number is required" : "",
+    description: !validateRequired(entity.description)
+      ? "Description is required"
       : "",
-    lastName: !validateRequired(user.lastName) ? "Last Name is Required" : "",
-    email: !validateEmail(user.email) ? "Incorrect Email Format" : "",
+    straightDirectionLinkSequenceId: !validateRequired(
+      entity.straightDirectionLinkSequenceId,
+    )
+      ? "Straight Direction is required"
+      : "",
+    reverseDirectionSequenceId: !validateRequired(
+      entity.reverseDirectionSequenceId,
+    )
+      ? "Reverse Direction is required"
+      : "",
+    depotExitLinkId: !validateRequired(entity.depotExitLinkId)
+      ? "Depot Exit Link Id is required"
+      : "",
+    depotEntryLinkId: !validateRequired(entity.depotEntryLinkId)
+      ? "Depot Entry Link Id is required"
+      : "",
+    routeId: !validateRequired(entity.routeId)
+      ? "Depot Entry Link Id is required"
+      : "",
+    active: !validateRequired(entity.active) ? "Active is required" : "",
   };
 }
 
 const RouteVariant = () => {
-
   const [validationErrors, setValidationErrors] = useState({});
-
+  const transformTableToJson = (values) => {
+    console.log("Transformed JSON:", values);
+    return {
+      number: values.number || null,
+      description: values.description || null,
+      straightDirectionLinkSequenceId:
+        values.straightDirectionLinkSequenceId || null,
+      reverseDirectionSequenceId: values.reverseDirectionSequenceId || null,
+      depotExitLinkId: values.depotExitLinkId || null,
+      depotEntryLinkId: values.depotEntryLinkId || null,
+      routeId: values.routeId || null,
+      stored: {
+        id: values.id || null,
+        creator: values.creator || null,
+        active: values.active || false,
+      },
+    };
+  };
   const columns = useMemo(
     () => [
       {
-        accessorKey: "id",
-        header: "Id",
+        accessorFn: (row) => row.stored?.id,
+        id: "id",
+        header: "Stored Id",
         enableEditing: false,
         size: 80,
       },
       {
-        accessorKey: "firstName",
-        header: "First Name",
+        accessorFn: (row) => row.number,
+        id: "number",
+        header: "Number",
         muiEditTextFieldProps: {
           required: true,
-          error: !!validationErrors?.firstName,
-          helperText: validationErrors?.firstName,
-    
+          error: !!validationErrors?.number,
+          helperText: validationErrors?.number,
+          onFocus: () =>
+            setValidationErrors((prevErrors) => ({
+              ...prevErrors,
+              number: undefined,
+            })),
+        },
+      },
+      {
+        accessorFn: (row) => row.description,
+        id: "description",
+        header: "Description",
+        muiEditTextFieldProps: {
+          required: true,
+          error: !!validationErrors?.description,
+          helperText: validationErrors?.description,
+          onFocus: () =>
+            setValidationErrors((prevErrors) => ({
+              ...prevErrors,
+              description: undefined,
+            })),
+        },
+      },
+      {
+        accessorFn: (row) => row.straightDirectionLinkSequenceId,
+        id: "straightDirectionLinkSequenceId",
+        header: "Straight Direction",
+        muiEditTextFieldProps: {
+          required: true,
+          error: !!validationErrors?.straightDirectionLinkSequenceId,
+          helperText: validationErrors?.straightDirectionLinkSequenceId,
+          /*
           onFocus: () =>
             setValidationErrors({
               ...validationErrors,
-              firstName: undefined,
+              straightDirectionLinkSequenceId: undefined,
+            }),
+            */
+          onFocus: () =>
+            setValidationErrors((prevErrors) => ({
+              ...prevErrors,
+              straightDirectionLinkSequenceId: undefined,
+            })),
+        },
+      },
+      {
+        accessorFn: (row) => row.reverseDirectionSequenceId,
+        id: "reverseDirectionSequenceId",
+        header: "Reverse Direction",
+        muiEditTextFieldProps: {
+          required: true,
+          error: !!validationErrors?.reverseDirectionSequenceId,
+          helperText: validationErrors?.reverseDirectionSequenceId,
+          /*
+          onFocus: () =>
+            setValidationErrors({
+              ...validationErrors,
+              reverseDirectionSequenceId: undefined,
+            }),
+            */
+          onFocus: () =>
+            setValidationErrors((prevErrors) => ({
+              ...prevErrors,
+              reverseDirectionSequenceId: undefined,
+            })),
+        },
+      },
+      {
+        accessorFn: (row) => row.depotExitLinkId,
+        id: "depotExitLinkId",
+        header: "Depot Exit",
+        muiEditTextFieldProps: {
+          required: true,
+          error: !!validationErrors?.depotExitLinkId,
+          helperText: validationErrors?.depotExitLinkId,
+          onFocus: () =>
+            setValidationErrors({
+              ...validationErrors,
+              depotExitLinkId: undefined,
             }),
         },
       },
       {
-        accessorKey: "lastName",
-        header: "Last Name",
+        accessorFn: (row) => row.depotEntryLinkId,
+        id: "depotEntryLinkId",
+        header: "Depot Entry",
         muiEditTextFieldProps: {
           required: true,
-          error: !!validationErrors?.lastName,
-          helperText: validationErrors?.lastName,
+          error: !!validationErrors?.depotEntryLinkId,
+          helperText: validationErrors?.depotEntryLinkId,
           onFocus: () =>
             setValidationErrors({
               ...validationErrors,
-              lastName: undefined,
+              depotEntryLinkId: undefined,
             }),
         },
       },
       {
-        accessorKey: "email",
-        header: "Email",
+        accessorFn: (row) => row.routeId,
+        id: "routeId",
+        header: "Route Id",
         muiEditTextFieldProps: {
-          type: "email",
           required: true,
-          error: !!validationErrors?.email,
-          helperText: validationErrors?.email,
+          error: !!validationErrors?.routeId,
+          helperText: validationErrors?.routeId,
           onFocus: () =>
             setValidationErrors({
               ...validationErrors,
-              email: undefined,
+              routeId: undefined,
             }),
         },
       },
       {
-        accessorKey: "state",
-        header: "State",
-        editVariant: "select",
-        editSelectOptions: usStates,
+        accessorFn: (row) => row.stored?.active,
+        id: "active",
+        header: "Active",
+        Cell: ({ row }) => (
+          <Checkbox checked={row.original.stored?.active === true} />
+        ),
         muiEditTextFieldProps: {
-          select: true,
-          error: !!validationErrors?.state,
-          helperText: validationErrors?.state,
+          required: true,
+          error: !!validationErrors?.active,
+          helperText: validationErrors?.active,
+          onChange: (event) => {
+            const value = event.target.value;
+            if (!value) {
+              setValidationErrors((prev) => ({
+                ...prev,
+                active: "active is required",
+              }));
+            } else if (value !== "true" && value !== "false") {
+              setValidationErrors({
+                ...validationErrors,
+                active: 'active is "true" or "false"',
+              });
+            } else {
+              delete validationErrors.active;
+              setValidationErrors({ ...validationErrors });
+            }
+          },
         },
       },
+      /*
+      {
+        accessorFn: (row) => row.stored?.creator,
+        id: "creator",
+        header: "Creator",
+        enableEditing: false,
+        size: 80,
+      },
+      */
     ],
     [validationErrors],
   );
 
-  //call CREATE hook
-  const { mutateAsync: createUser, isPending: isCreatingUser } =
-    useCreateUser();
-  //call READ hook
   const {
-    data: fetchedUsers = [],
-    isError: isLoadingUsersError,
-    isFetching: isFetchingUsers,
-    isLoading: isLoadingUsers,
-  } = useGetUsers();
-  //call UPDATE hook
-  const { mutateAsync: updateUser, isPending: isUpdatingUser } =
-    useUpdateUser();
-  //call DELETE hook
-  const { mutateAsync: deleteUser, isPending: isDeletingUser } =
-    useDeleteUser();
+    data: fetchedEntities = [],
+    isError: isLoadingEntitiesError,
+    isFetching: isFetchingEntities,
+    isLoading: isLoadingEntities,
+  } = useGetEntity();
 
-  //CREATE action
-  const handleCreateUser = async ({ values, table }) => {
-    const newValidationErrors = validateUser(values);
+  const { mutateAsync: createEntity, isPending: isCreatingEntity } =
+    useCreateEntity();
+  const { mutateAsync: updateEntity, isPending: isUpdatingEntity } =
+    useUpdateEntity();
+  const { mutateAsync: deleteEntity, isPending: isDeletingEntity } =
+    useDeleteEntity();
+
+  const handleCreateEntity = async ({ values, table }) => {
+    console.log("from handleCreateEntity", { values });
+    const newValidationErrors = validateEntity(values);
+    console.log("newValidationErrors", newValidationErrors);
     if (Object.values(newValidationErrors).some((error) => error)) {
       setValidationErrors(newValidationErrors);
       return;
     }
     setValidationErrors({});
-    await createUser(values);
-    table.setCreatingRow(null); //exit creating mode
+    const transformedValues = transformTableToJson(values);
+
+    await createEntity(transformedValues);
+    table.setCreatingRow(null);
   };
 
-  //UPDATE action
-  const handleSaveUser = async ({ values, table }) => {
-    const newValidationErrors = validateUser(values);
+  const handleSaveEntity = async ({ values, table }) => {
+    const newValidationErrors = validateEntity(values);
     if (Object.values(newValidationErrors).some((error) => error)) {
       setValidationErrors(newValidationErrors);
       return;
     }
     setValidationErrors({});
-    await updateUser(values);
-    table.setEditingRow(null); //exit editing mode
+    const transformedValues = transformTableToJson(values);
+    await updateEntity(transformedValues);
+    table.setEditingRow(null);
   };
 
-  //DELETE action
   const openDeleteConfirmModal = (row) => {
-    if (window.confirm("Are you sure you want to delete this user?")) {
-      deleteUser(row.original.id);
+    if (window.confirm("Are you sure you want to delete this route variant?")) {
+      deleteEntity(row.original.stored.id);
     }
   };
 
   const table = useMaterialReactTable({
     columns,
-    data: fetchedUsers,
-    createDisplayMode: "modal", //default ('row', and 'custom' are also available)
-    editDisplayMode: "modal", //default ('row', 'cell', 'table', and 'custom' are also available)
+    data: fetchedEntities,
+    createDisplayMode: "modal",
+    editDisplayMode: "modal",
     enableEditing: true,
     getRowId: (row) => row.id,
-    muiToolbarAlertBannerProps: isLoadingUsersError
+    muiToolbarAlertBannerProps: isLoadingEntitiesError
       ? {
           color: "error",
           children: "Error loading data",
@@ -181,27 +315,27 @@ const RouteVariant = () => {
       },
     },
     onCreatingRowCancel: () => setValidationErrors({}),
-    onCreatingRowSave: handleCreateUser,
+    onCreatingRowSave: handleCreateEntity,
     onEditingRowCancel: () => setValidationErrors({}),
-    onEditingRowSave: handleSaveUser,
-    //optionally customize modal content
+    onEditingRowSave: handleSaveEntity,
+
     renderCreateRowDialogContent: ({ table, row, internalEditComponents }) => (
       <>
-        <DialogTitle variant="h3">Create New User</DialogTitle>
+        <DialogTitle variant="h5">Create New Route Variant</DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1rem" }}
         >
-          {internalEditComponents} {/* or render custom edit components here */}
+          {internalEditComponents}
         </DialogContent>
         <DialogActions>
           <MRT_EditActionButtons variant="text" table={table} row={row} />
         </DialogActions>
       </>
     ),
-    //optionally customize modal content
+
     renderEditRowDialogContent: ({ table, row, internalEditComponents }) => (
       <>
-        <DialogTitle variant="h3">Edit User</DialogTitle>
+        <DialogTitle variant="h5">Edit Route Variant</DialogTitle>
         <DialogContent
           sx={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
         >
@@ -212,6 +346,7 @@ const RouteVariant = () => {
         </DialogActions>
       </>
     ),
+
     renderRowActions: ({ row, table }) => (
       <Box sx={{ display: "flex", gap: "1rem" }}>
         <Tooltip title="Edit">
@@ -226,6 +361,7 @@ const RouteVariant = () => {
         </Tooltip>
       </Box>
     ),
+
     renderTopToolbarCustomActions: ({ table }) => (
       <Button
         variant="contained"
@@ -233,81 +369,99 @@ const RouteVariant = () => {
           table.setCreatingRow(true);
         }}
       >
-        Create New User
+        Create New Route Variant
       </Button>
     ),
+
     state: {
-      isLoading: isLoadingUsers,
-      isSaving: isCreatingUser || isUpdatingUser || isDeletingUser,
-      showAlertBanner: isLoadingUsersError,
-      showProgressBars: isFetchingUsers,
+      isLoading: isLoadingEntities,
+      isSaving: isCreatingEntity || isUpdatingEntity || isDeletingEntity,
+      showAlertBanner: isLoadingEntitiesError,
+      showProgressBars: isFetchingEntities,
     },
   });
 
   return <MaterialReactTable table={table} />;
 };
 
-// create new user
-function useCreateUser() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (user) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); 
-      return Promise.resolve();
-    },
-    onMutate: (newUserInfo) => {
-      queryClient.setQueryData(["users"], (prevUsers) => [
-        ...prevUsers,
-        {
-          ...newUserInfo,
-          id: (Math.random() + 1).toString(36).substring(7),
-        },
-      ]);
-    },
-  });
-}
-
-// get users
-function useGetUsers() {
+// Get all route variants:
+function useGetEntity() {
   return useQuery({
-    queryKey: ["users"],
+    queryKey: ["routevariants"],
     queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); 
-      return Promise.resolve(fakeData);
+      const response = await getData("route/route-variant/find-all");
+      return response.data;
     },
     refetchOnWindowFocus: false,
   });
 }
 
-// update user 
-function useUpdateUser() {
+// Create new route variant:
+function useCreateEntity() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (user) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      return Promise.resolve();
+    mutationFn: async (newrouteVar) => {
+      const enroute = `/route/route-variant/create`;
+      newrouteVar.stored.creator = 132;
+      const response = await createEntityForm(newrouteVar, enroute);
+      return response;
     },
-    onMutate: (newUserInfo) => {
-      queryClient.setQueryData(["users"], (prevUsers) =>
-        prevUsers?.map((prevUser) =>
-          prevUser.id === newUserInfo.id ? newUserInfo : prevUser,
-        ),
-      );
+    onSuccess: (data, variables) => {
+      queryClient.setQueryData(["routevariants"], (prevEntities) => {
+        return prevEntities.map((entity) =>
+          entity.stored?.id === variables.stored?.id
+            ? { ...entity, "stored.id": data.stored.id }
+            : entity,
+        );
+      });
     },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["routevariants"] }),
   });
 }
 
-// delete user
-function useDeleteUser() {
+// Update route variant:
+function useUpdateEntity() {
+  const queryClient = useQueryClient();
+  const cachedPointsData = queryClient.getQueryData(["routevariants"]);
+  return useMutation({
+    mutationFn: async (entity) => {
+      const cachedEntity = cachedPointsData?.find(
+        (value) => value.stored.id === entity.stored.id,
+      );
+      if (cachedEntity) {
+        entity.stored.creator = cachedEntity.stored.creator;
+      }
+      const enroute = `/route/route-variant/edit`;
+      const response = await updateEntityForm(entity, enroute);
+      return response;
+    },
+    onMutate: (newEntityInf) => {
+      queryClient.setQueryData(["routevariants"], (prevEntities) =>
+        prevEntities?.map((prevEntity) =>
+          prevEntity.stored.id === newEntityInf.stored.id
+            ? newEntityInf
+            : prevEntity,
+        ),
+      );
+    },
+    onSettled: () =>
+      queryClient.invalidateQueries({ queryKey: ["routevariants"] }),
+  });
+}
+
+// Delete route variant:
+function useDeleteEntity() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (userId) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000)); 
-      return Promise.resolve();
+    mutationFn: async (entityId) => {
+      const enroute = `/route/route-variant/`;
+      const response = await deleteEntity(entityId, enroute);
+      return response;
     },
-    onMutate: (userId) => {
-      queryClient.setQueryData(["users"], (prevUsers) =>
-        prevUsers?.filter((user) => user.id !== userId),
+    onMutate: (entityId) => {
+      queryClient.setQueryData(["routevariants"], (prevRoutes) =>
+        prevRoutes?.filter((entity) => entity.stored.id !== entityId),
       );
     },
   });
