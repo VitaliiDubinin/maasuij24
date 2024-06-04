@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useGetEntity } from '../../../lib/hooks/useGetEntity';
 import useCreateEntity from '../../../lib/hooks/useCreateEntity';
+import useDeleteEntity from '../../../lib/hooks/useDeleteEntity'; // Import the hook
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
 import LinesComponent from "../../../components/mapbox/LinesComponent";
@@ -10,6 +11,7 @@ import InfoBox from "../../../components/mapbox/InfoBox";
 const TestMap = () => {
   const { data: pointsData, isLoading, error } = useGetEntity();
   const createEntity = useCreateEntity();
+  const deleteEntity = useDeleteEntity(); // Initialize the hook
 
   const [lng, setLng] = useState(27.6);
   const [lat, setLat] = useState(42.6);
@@ -49,11 +51,11 @@ const TestMap = () => {
         persistent: {
           id: null,
           name: pointName,
+          description: null,
           creator: 133,
           locales: [],
           active: null
         },
-  //      number: newPoint.id,
         number: 868,
         point: {
           x: newPoint.geometry.coordinates[0],
@@ -75,10 +77,10 @@ const TestMap = () => {
     updatePoints();
   };
 
-  const updatePoints = () => {
+  const updatePoints = (updatedData) => {
     if (!draw.current) return;
     const data = draw.current.getAll();
-    const updatedData = {
+    const finalData = updatedData || {
       ...pointsData,
       features: [
         ...pointsData.features.filter(f => f.properties.id.startsWith('point')),
@@ -86,15 +88,15 @@ const TestMap = () => {
           ...f,
           properties: {
             ...f.properties,
-            id: f.id, // Ensure each new point has an ID
+            id: f.id,
             name: f.properties.name || "Unnamed Point"
           }
         }))
       ]
     };
-    console.log('Updated points:', updatedData);
+    console.log('Updated points:', finalData);
     if (map.current && map.current.getSource('points')) {
-      map.current.getSource('points').setData(updatedData);
+      map.current.getSource('points').setData(finalData);
     }
   };
 
@@ -118,7 +120,6 @@ const TestMap = () => {
       }
     });
 
-    // Update the feature state to indicate selection
     if (map.current) {
       const isSelected = map.current.getFeatureState({
         source: 'points',
@@ -154,6 +155,13 @@ const TestMap = () => {
     }
   };
 
+  const deleteSelectedPoints = () => {
+    selectedPoints.forEach(point => {
+      deleteEntity.mutate(point.id);
+    });
+    setSelectedPoints([]);
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -165,7 +173,12 @@ const TestMap = () => {
   return (
     <div>
       <Sidebar lng={lng} lat={lat} zoom={zoom} />
-      <InfoBox deleteSelectedLine={deleteSelectedLine} selectedLineId={selectedLineId} />
+      <InfoBox
+        deleteSelectedLine={deleteSelectedLine}
+        deleteSelectedPoints={deleteSelectedPoints} // Pass the delete function
+        selectedLineId={selectedLineId}
+        selectedPoints={selectedPoints} // Pass selected points
+      />
       <MapComponent
         lng={lng}
         lat={lat}

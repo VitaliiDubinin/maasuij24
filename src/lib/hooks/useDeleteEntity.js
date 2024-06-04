@@ -7,8 +7,11 @@ const useDeleteEntity = () => {
   return useMutation({
     mutationFn: async (entityId) => {
       console.log("from useDeleteHook", entityId);
-      const enroute = `/stop-point/delete/`;
-      await deleteEntity(entityId, enroute);
+      const enroute = `/stop-point/`;
+
+//      await deleteEntity(entityId, enroute);
+const id = entityId.replace('point', ''); // Remove the "point" prefix
+await deleteEntity(id, enroute);
     },
     onSuccess: () => {
       queryClient.invalidateQueries(['spoints']);

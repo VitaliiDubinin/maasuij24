@@ -27,6 +27,7 @@ const convertToGeoJSON = (data) => {
       },
       properties: {
         id: `point${item.persistent.id}`,
+//        id: item.persistent.id,
         name: item.persistent.name
       }
     }))
