@@ -1,34 +1,25 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useGetEntity } from '../../../lib/hooks/useGetEntity';
+import React, { useState, useRef } from "react";
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
 import LinesComponent from "../../../components/mapbox/LinesComponent";
 import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
+import initialPointsGeoJSON from "../../../components/mapbox/initialPointsGeoJSON";
 
 const TestMap = () => {
-  const { data, isLoading, error } = useGetEntity();
-
   const [lng, setLng] = useState(27.6);
   const [lat, setLat] = useState(42.6);
   const [zoom, setZoom] = useState(9);
   const [selectedPoints, setSelectedPoints] = useState([]);
+  const [pointsData, setPointsData] = useState(initialPointsGeoJSON);
   const [draggedPointId, setDraggedPointId] = useState(null);
   const [linesData, setLinesData] = useState({
-    type: 'FeatureCollection',
-    features: []
+    'type': 'FeatureCollection',
+    'features': []
   });
   const [selectedLineId, setSelectedLineId] = useState(null);
   const map = useRef(null);
   const draw = useRef(null);
-
-  const pointsData = data ? convertToGeoJSON(data) : { type: 'FeatureCollection', features: [] };
-
-  useEffect(() => {
-    if (!isLoading && pointsData && map.current && map.current.getSource('points')) {
-      map.current.getSource('points').setData(pointsData);
-    }
-  }, [isLoading, pointsData]);
 
   const onMove = () => {
     if (map.current) {
@@ -61,7 +52,6 @@ const TestMap = () => {
   };
 
   const updatePoints = () => {
-    if (!draw.current) return;
     const data = draw.current.getAll();
     const updatedData = {
       ...pointsData,
@@ -73,10 +63,9 @@ const TestMap = () => {
         }
       }))]
     };
+    setPointsData(updatedData);
     console.log('Updated points:', updatedData);
-    if (map.current && map.current.getSource('points')) {
-      map.current.getSource('points').setData(updatedData);
-    }
+    map.current.getSource('points').setData(updatedData);
   };
 
   const onPointClick = (e) => {
@@ -122,14 +111,6 @@ const TestMap = () => {
     }
   };
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error loading points data: {error.message}</div>;
-  }
-
   return (
     <div>
       <Sidebar lng={lng} lat={lat} zoom={zoom} />
@@ -156,23 +137,6 @@ const TestMap = () => {
       <LinesComponent selectedPoints={selectedPoints} setLinesData={setLinesData} mapRef={map} />
     </div>
   );
-};
-
-const convertToGeoJSON = (data) => {
-  return {
-    type: 'FeatureCollection',
-    features: data.map(item => ({
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [item.point.x, item.point.y]
-      },
-      properties: {
-        id: `point${item.persistent.id}`,
-        name: item.persistent.name
-      }
-    }))
-  };
 };
 
 export default TestMap;
