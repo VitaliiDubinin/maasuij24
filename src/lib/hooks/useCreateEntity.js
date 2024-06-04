@@ -6,7 +6,7 @@ const useCreateEntity = () => {
 
   return useMutation({
     mutationFn: async (spoint) => {
-    console.log("from useCreateHook", spoint);
+   // console.log("from useCreateHook", spoint);
       const enroute = `/stop-point/create`;
      // spoint.persistent.creator = 132;
       const response = await createEntityForm(spoint, enroute);
