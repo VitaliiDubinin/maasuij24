@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useGetEntity } from '../../../lib/hooks/useGetEntity';
+import useCreateEntity from '../../../lib/hooks/useCreateEntity';
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
 import LinesComponent from "../../../components/mapbox/LinesComponent";
@@ -7,7 +8,8 @@ import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
 
 const TestMap = () => {
-  const { data, isLoading, error } = useGetEntity();
+  const { data: pointsData, isLoading, error } = useGetEntity();
+  const createEntity = useCreateEntity();
 
   const [lng, setLng] = useState(27.6);
   const [lat, setLat] = useState(42.6);
@@ -22,11 +24,11 @@ const TestMap = () => {
   const map = useRef(null);
   const draw = useRef(null);
 
-  const pointsData = data ? convertToGeoJSON(data) : { type: 'FeatureCollection', features: [] };
-
   useEffect(() => {
-    if (!isLoading && pointsData && map.current && map.current.getSource('points')) {
-      map.current.getSource('points').setData(pointsData);
+    if (!isLoading && pointsData) {
+      if (map.current && map.current.getSource('points')) {
+        map.current.getSource('points').setData(pointsData);
+      }
     }
   }, [isLoading, pointsData]);
 
@@ -43,10 +45,23 @@ const TestMap = () => {
     const pointName = prompt("Enter a name for the new point:", "New Point");
 
     if (pointName) {
-      newPoint.properties = newPoint.properties || {};
-      newPoint.properties.name = pointName;
-      newPoint.properties.id = newPoint.id; // Ensure each new point has an ID
-      updatePoints();
+      const newSPoint = {
+        persistent: {
+          id: null,
+          name: pointName,
+          creator: 133,
+          locales: [],
+          active: null
+        },
+  //      number: newPoint.id,
+        number: 868,
+        point: {
+          x: newPoint.geometry.coordinates[0],
+          y: newPoint.geometry.coordinates[1]
+        }
+      };
+
+      createEntity.mutate(newSPoint);
     } else {
       draw.current.delete(newPoint.id);
     }
@@ -65,13 +80,17 @@ const TestMap = () => {
     const data = draw.current.getAll();
     const updatedData = {
       ...pointsData,
-      features: [...pointsData.features.filter(f => f.properties.id.startsWith('point')), ...data.features.map(f => ({
-        ...f,
-        properties: {
-          ...f.properties,
-          id: f.id // Ensure each new point has an ID
-        }
-      }))]
+      features: [
+        ...pointsData.features.filter(f => f.properties.id.startsWith('point')),
+        ...data.features.map(f => ({
+          ...f,
+          properties: {
+            ...f.properties,
+            id: f.id, // Ensure each new point has an ID
+            name: f.properties.name || "Unnamed Point"
+          }
+        }))
+      ]
     };
     console.log('Updated points:', updatedData);
     if (map.current && map.current.getSource('points')) {
@@ -98,6 +117,19 @@ const TestMap = () => {
         return [{ id: pointId, coordinates }];
       }
     });
+
+    // Update the feature state to indicate selection
+    if (map.current) {
+      const isSelected = map.current.getFeatureState({
+        source: 'points',
+        id: pointId
+      }).selected;
+
+      map.current.setFeatureState(
+        { source: 'points', id: pointId },
+        { selected: !isSelected }
+      );
+    }
   };
 
   const onLineClick = (e) => {
@@ -156,23 +188,6 @@ const TestMap = () => {
       <LinesComponent selectedPoints={selectedPoints} setLinesData={setLinesData} mapRef={map} />
     </div>
   );
-};
-
-const convertToGeoJSON = (data) => {
-  return {
-    type: 'FeatureCollection',
-    features: data.map(item => ({
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: [item.point.x, item.point.y]
-      },
-      properties: {
-        id: `point${item.persistent.id}`,
-        name: item.persistent.name
-      }
-    }))
-  };
 };
 
 export default TestMap;
