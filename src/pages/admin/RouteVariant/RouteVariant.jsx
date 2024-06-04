@@ -40,8 +40,8 @@ function validateEntity(entity) {
     )
       ? "Straight Direction is required"
       : "",
-    reverseDirectionSequenceId: !validateRequired(
-      entity.reverseDirectionSequenceId,
+    reverseDirectionLinkSequenceId: !validateRequired(
+      entity.reverseDirectionLinkSequenceId,
     )
       ? "Reverse Direction is required"
       : "",
@@ -67,7 +67,7 @@ const RouteVariant = () => {
       description: values.description || null,
       straightDirectionLinkSequenceId:
         values.straightDirectionLinkSequenceId || null,
-      reverseDirectionSequenceId: values.reverseDirectionSequenceId || null,
+      reverseDirectionLinkSequenceId: values.reverseDirectionLinkSequenceId || null,
       depotExitLinkId: values.depotExitLinkId || null,
       depotEntryLinkId: values.depotEntryLinkId || null,
       routeId: values.routeId || null,
@@ -140,13 +140,13 @@ const RouteVariant = () => {
         },
       },
       {
-        accessorFn: (row) => row.reverseDirectionSequenceId,
-        id: "reverseDirectionSequenceId",
+        accessorFn: (row) => row.reverseDirectionLinkSequenceId,
+        id: "reverseDirectionLinkSequenceId",
         header: "Reverse Direction",
         muiEditTextFieldProps: {
           required: true,
-          error: !!validationErrors?.reverseDirectionSequenceId,
-          helperText: validationErrors?.reverseDirectionSequenceId,
+          error: !!validationErrors?.reverseDirectionLinkSequenceId,
+          helperText: validationErrors?.reverseDirectionLinkSequenceId,
           /*
           onFocus: () =>
             setValidationErrors({
@@ -157,7 +157,7 @@ const RouteVariant = () => {
           onFocus: () =>
             setValidationErrors((prevErrors) => ({
               ...prevErrors,
-              reverseDirectionSequenceId: undefined,
+              reverseDirectionLinkSequenceId: undefined,
             })),
         },
       },
