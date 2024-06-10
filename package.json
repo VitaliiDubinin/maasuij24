@@ -3,7 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-
     "@mapbox/mapbox-gl-draw": "^1.4.3",
     "@mapbox/mapbox-gl-geocoder": "^5.0.2",
     "@mui/icons-material": "^5.15.14",
@@ -18,7 +17,7 @@
     "leaflet-control-geocoder": "^2.4.0",
     "leaflet-routing-machine": "^3.2.12",
     "mapbox-gl": "^3.3.0",
-    "material-react-table": "^2.12.1",
+    "material-react-table": "^2.13.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-dotenv": "^0.1.3",
