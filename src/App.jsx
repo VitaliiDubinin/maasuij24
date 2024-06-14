@@ -24,6 +24,7 @@ import {
   primary_main_color,
   // drawer_icon_color,
 } from './config/themeConfig.js';
+import DataTable from './pages/admin/DataTable/DataTable.js';
 
 
 function App() {
@@ -77,7 +78,7 @@ function App() {
             <Route path="stops" element={<Stops />} />
             <Route path="spoints" element={<StopPoints />} />
             <Route path="links" element={<Links />} />
-
+            <Route path="datatable" element={<DataTable />} />
             <Route path="linksequences" element={<LinkSequences />} />
             <Route path="routes" element={<RouteManagement />} />
             <Route path="routevariants" element={<RouteVariant />} />
