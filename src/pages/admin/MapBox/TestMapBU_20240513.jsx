@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useGetEntity } from '../../../lib/hooks/useGetEntity';
 import useCreateEntity from '../../../lib/hooks/useCreateEntity';
-import useUpdateEntity from '../../../lib/hooks/useUpdateEntity';
 import useDeleteEntity from '../../../lib/hooks/useDeleteEntity'; // Import the hook
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
@@ -64,12 +63,7 @@ const TestMap = () => {
         }
       };
 
-      // createEntity.mutate(newSPoint);
-      createEntity.mutate(newSPoint, {
-        onSuccess: () => {
-          updatePoints();
-        }
-      });
+      createEntity.mutate(newSPoint);
     } else {
       draw.current.delete(newPoint.id);
     }
