@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useGetEntity } from '../../../lib/hooks/useGetEntity';
 import useCreateEntity from '../../../lib/hooks/useCreateEntity';
 import useUpdateEntity from '../../../lib/hooks/useUpdateEntity';
-import useDeleteEntity from '../../../lib/hooks/useDeleteEntity'; // Import the hook
+import useDeleteEntity from '../../../lib/hooks/useDeleteEntity';
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
 import LinesComponent from "../../../components/mapbox/LinesComponent";
@@ -12,7 +12,8 @@ import InfoBox from "../../../components/mapbox/InfoBox";
 const TestMap = () => {
   const { data: pointsData, isLoading, error } = useGetEntity();
   const createEntity = useCreateEntity();
-  const deleteEntity = useDeleteEntity(); // Initialize the hook
+  const updateEntity = useUpdateEntity();
+  const deleteEntity = useDeleteEntity();
 
   const [lng, setLng] = useState(27.6);
   const [lat, setLat] = useState(42.6);
@@ -26,9 +27,11 @@ const TestMap = () => {
   const [selectedLineId, setSelectedLineId] = useState(null);
   const map = useRef(null);
   const draw = useRef(null);
+  const isUpdatingRef = useRef(false);
 
   useEffect(() => {
     if (!isLoading && pointsData) {
+      console.log("Setting map source data with pointsData");
       if (map.current && map.current.getSource('points')) {
         map.current.getSource('points').setData(pointsData);
       }
@@ -37,9 +40,15 @@ const TestMap = () => {
 
   const onMove = () => {
     if (map.current) {
-      setLng(map.current.getCenter().lng.toFixed(4));
-      setLat(map.current.getCenter().lat.toFixed(4));
-      setZoom(map.current.getZoom().toFixed(2));
+      const newLng = map.current.getCenter().lng.toFixed(4);
+      const newLat = map.current.getCenter().lat.toFixed(4);
+      const newZoom = map.current.getZoom().toFixed(2);
+
+      console.log(`Map moved: newLng=${newLng}, newLat=${newLat}, newZoom=${newZoom}`);
+
+      setLng(newLng);
+      setLat(newLat);
+      setZoom(newZoom);
     }
   };
 
@@ -64,9 +73,11 @@ const TestMap = () => {
         }
       };
 
-      // createEntity.mutate(newSPoint);
+      console.log("Creating new point:", newSPoint);
+
       createEntity.mutate(newSPoint, {
         onSuccess: () => {
+          console.log("Point created successfully, updating points.");
           updatePoints();
         }
       });
@@ -76,11 +87,48 @@ const TestMap = () => {
   };
 
   const onDrawDelete = () => {
+    console.log("Deleting point, updating points.");
     updatePoints();
   };
 
-  const onDrawUpdate = () => {
-    updatePoints();
+  const onDrawUpdate = (e) => {
+    const updatedPoint = e.features[0];
+    const pointId = updatedPoint.id;
+    const updatedCoordinates = updatedPoint.geometry.coordinates;
+
+    const updatedEntity = {
+      persistent: {
+        id: pointId,
+        name: updatedPoint.properties.name,
+        description: updatedPoint.properties.description,
+        creator: updatedPoint.properties.creator,
+        locales: updatedPoint.properties.locales,
+        active: updatedPoint.properties.active
+      },
+      number: updatedPoint.properties.number,
+      point: {
+        x: updatedCoordinates[0],
+        y: updatedCoordinates[1]
+      }
+    };
+
+    console.log("Updating point:", updatedEntity);
+
+    if (!isUpdatingRef.current) {
+      isUpdatingRef.current = true;
+      console.log("Calling updateEntity.mutate");
+      updateEntity.mutate(updatedEntity, {
+        onSuccess: () => {
+          console.log("Point updated successfully, updating points.");
+          updatePoints();
+          isUpdatingRef.current = false;
+        },
+        onError: (error) => {
+          console.error("Error updating point:", error);
+          isUpdatingRef.current = false;
+        }
+      });
+    }
   };
 
   const updatePoints = (updatedData) => {
@@ -101,6 +149,10 @@ const TestMap = () => {
       ]
     };
     console.log('Updated points:', finalData);
+    const lastItem = finalData.features[finalData.features.length - 1];
+    if (lastItem && lastItem.geometry && lastItem.geometry.coordinates) {
+      console.log('Coordinates of the last item:', lastItem.geometry.coordinates);
+    }
     if (map.current && map.current.getSource('points')) {
       map.current.getSource('points').setData(finalData);
     }
@@ -181,9 +233,9 @@ const TestMap = () => {
       <Sidebar lng={lng} lat={lat} zoom={zoom} />
       <InfoBox
         deleteSelectedLine={deleteSelectedLine}
-        deleteSelectedPoints={deleteSelectedPoints} // Pass the delete function
+        deleteSelectedPoints={deleteSelectedPoints}
         selectedLineId={selectedLineId}
-        selectedPoints={selectedPoints} // Pass selected points
+        selectedPoints={selectedPoints}
       />
       <MapComponent
         lng={lng}

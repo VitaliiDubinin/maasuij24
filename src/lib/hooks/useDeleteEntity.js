@@ -3,6 +3,7 @@ import { deleteEntity } from '../fetch';
 
 const useDeleteEntity = () => {
   const queryClient = useQueryClient();
+//  console.log("from useDeleteHook");
 
   return useMutation({
     mutationFn: async (entityId) => {
