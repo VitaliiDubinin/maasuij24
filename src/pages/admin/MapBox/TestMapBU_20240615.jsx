@@ -22,12 +22,12 @@ const TestMap = () => {
   const [lat, setLat] = useState(42.6);
   const [zoom, setZoom] = useState(9);
   const [selectedPoints, setSelectedPoints] = useState([]);
+  const [draggedPointId, setDraggedPointId] = useState(null);
   const [linesData, setLinesData] = useState({
     type: 'FeatureCollection',
     features: []
   });
   const [selectedLineId, setSelectedLineId] = useState(null);
-  const [clonedPoint, setClonedPoint] = useState(null); // State for cloned point
   const map = useRef(null);
   const draw = useRef(null);
   const isUpdatingRef = useRef(false);
@@ -41,16 +41,13 @@ const TestMap = () => {
     }
   }, [isLoading, pointsData]);
 
-  // Debugging useEffect to log clonedPoint state changes
-  useEffect(() => {
-    console.log("clonedPoint state updated in TestMap:", clonedPoint);
-  }, [clonedPoint]);
-
   const onMove = () => {
     if (map.current) {
       const newLng = map.current.getCenter().lng.toFixed(4);
       const newLat = map.current.getCenter().lat.toFixed(4);
       const newZoom = map.current.getZoom().toFixed(2);
+
+//      console.log(`Map moved: newLng=${newLng}, newLat=${newLat}, newZoom=${newZoom}`);
 
       setLng(newLng);
       setLat(newLat);
@@ -93,20 +90,57 @@ const TestMap = () => {
     }
   };
 
-  const onDrawDelete = (e) => {
-    const deletedPointIds = e.features.map(feature => feature.id);
-    deletedPointIds.forEach(id => {
-      deleteEntity.mutate(id, {
-        onSuccess: async () => {
-          console.log(`Point ${id} deleted successfully, fetching new data.`);
-          const berta = await fetchAndUpdateEntities(queryClient);
-          updatePoints(berta);
+  const onDrawDelete = () => {
+    console.log("Deleting point, updating points.");
+    updatePoints();
+  };
+
+  const onDrawUpdate = (e) => {
+    console.log("e",e)
+    const updatedPoint = e.features[0];
+    const pointId = updatedPoint.id;
+    const updatedCoordinates = updatedPoint.geometry.coordinates;
+
+    // Invalidate and refetch the cache to get the latest data
+    queryClient.invalidateQueries(["spoints"]).then(async () => {
+      await fetchAndUpdateEntities(queryClient);
+      const updatedEntity = {
+        persistent: {
+          id: pointId,
+          name: updatedPoint.properties.name,
+          description: updatedPoint.properties.description,
+          creator: updatedPoint.properties.creator,
+          locales: updatedPoint.properties.locales,
+          active: updatedPoint.properties.active
+        },
+        point: {
+          x: updatedCoordinates[0],
+          y: updatedCoordinates[1]
         }
-      });
+      };
+
+      console.log("Updating point:", updatedEntity);
+
+      if (!isUpdatingRef.current) {
+        isUpdatingRef.current = true;
+        console.log("Calling updateEntity.mutate");
+        updateEntity.mutate(updatedEntity, {
+          onSuccess: () => {
+            console.log("Point updated successfully, updating points.");
+            updatePoints();
+            isUpdatingRef.current = false;
+          },
+          onError: (error) => {
+            console.error("Error updating point:", error);
+            isUpdatingRef.current = false;
+          }
+        });
+      }
     });
   };
 
   const updatePoints = (updatedData) => {
+    console.log("updatedData", updatedData)
     if (!draw.current) return;
     const data = draw.current.getAll();
     const finalData = updatedData || {
@@ -118,70 +152,41 @@ const TestMap = () => {
           properties: {
             ...f.properties,
             id: f.id,
-            name: f.properties.name || "Unnamed Point",
-            creator: f.properties.creator || 138
+            name: f.properties.name || "Unnamed Point"
           }
         }))
       ]
     };
+    console.log('Updated points:', finalData);
+    const lastItem = finalData.features[finalData.features.length - 1];
+    if (lastItem && lastItem.geometry && lastItem.geometry.coordinates) {
+      console.log('Coordinates of the last item:', lastItem.geometry.coordinates);
+    }
     if (map.current && map.current.getSource('points')) {
       map.current.getSource('points').setData(finalData);
     }
   };
 
   const onPointClick = (e) => {
-    console.log(e.features)
     const coordinates = e.features[0].geometry.coordinates.slice();
     const pointId = e.features[0].properties.id;
     const pointName = e.features[0].properties.name;
-    const pointCreat = e.features[0].properties.creator;
 
-    // Remove existing cloned point if any
-    if (clonedPoint) {
-      console.log("Removing existing cloned point");
-      map.current.getSource('cloned-points').setData({
-        type: 'FeatureCollection',
-        features: []
-      });
-      setClonedPoint(null);
-    }
+    console.log(`Clicked point: ${pointId} (${pointName}) at ${coordinates}`);
 
-    // Create a new cloned point
-    const newClonedPoint = {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: coordinates
-      },
-      properties: {
-        id: pointId,
-        name: pointName,
-        creator:pointCreat
-      }
-    };
-
-    console.log("Cloning new point:", newClonedPoint);
-
-    // Update the map source with the new cloned point
-    map.current.getSource('cloned-points').setData({
-      type: 'FeatureCollection',
-      features: [newClonedPoint]
-    });
-
-    setClonedPoint(newClonedPoint);
-
-    // Manage selected points for line drawing
     setSelectedPoints((prevSelectedPoints) => {
       if (prevSelectedPoints.length === 0) {
+        console.log("First point chosen");
         return [{ id: pointId, coordinates }];
       } else if (prevSelectedPoints.length === 1 && prevSelectedPoints[0].id !== pointId) {
+        console.log("Second point chosen");
         return [...prevSelectedPoints, { id: pointId, coordinates }];
       } else {
+        console.log("New line start point chosen");
         return [{ id: pointId, coordinates }];
       }
     });
 
-    // Toggle point selection state
     if (map.current) {
       const isSelected = map.current.getFeatureState({
         source: 'points',
@@ -197,6 +202,7 @@ const TestMap = () => {
 
   const onLineClick = (e) => {
     const lineId = e.features[0].properties.id;
+    console.log(`Clicked line: ${lineId}`);
     setSelectedLineId(lineId);
   };
 
@@ -221,11 +227,6 @@ const TestMap = () => {
       deleteEntity.mutate(point.id);
     });
     setSelectedPoints([]);
-  };
-
-  const handleClonedPointUpdate = (newClonedPoint) => {
-    console.log("Updating cloned point state:", newClonedPoint);
-    setClonedPoint(newClonedPoint);
   };
 
   if (isLoading) {
@@ -254,13 +255,14 @@ const TestMap = () => {
         linesData={linesData}
         onDrawCreate={onDrawCreate}
         onDrawDelete={onDrawDelete}
+        onDrawUpdate={onDrawUpdate}
         onPointClick={onPointClick}
         onLineClick={onLineClick}
+        draggedPointId={draggedPointId}
+        setDraggedPointId={setDraggedPointId}
         updatePoints={updatePoints}
         mapRef={map}
         drawRef={draw}
-        clonedPoint={clonedPoint}
-        handleClonedPointUpdate={handleClonedPointUpdate}
       />
       <PointsComponent mapRef={map} drawRef={draw} updatePoints={updatePoints} />
       <LinesComponent selectedPoints={selectedPoints} setLinesData={setLinesData} mapRef={map} />

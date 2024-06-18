@@ -1,24 +1,25 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { createEntityForm } from '../fetch';
+import { fetchAndUpdateEntities } from './fetchAndUpdateEntities';
 
 const useCreateEntity = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (spoint) => {
-   // console.log("from useCreateHook", spoint);
+    mutationFn: async (entity) => {
       const enroute = `/stop-point/create`;
-     // spoint.persistent.creator = 132;
-      const response = await createEntityForm(spoint, enroute);
+      const response = await createEntityForm(entity, enroute);
       return response;
     },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries(["spoints"]);
+    onSuccess: async () => {
+      console.log("useCreateEntity success, fetching new data");
+      queryClient.invalidateQueries(['spoints']);
+      //await fetchAndUpdateEntities(queryClient);
+    },
+    onError: (error) => {
+      console.error("Error in useCreateEntity mutation:", error);
     }
   });
 };
 
 export default useCreateEntity;
-
-
-//import useCreateEntity from '../../../lib/hooks/useCreateEntity';

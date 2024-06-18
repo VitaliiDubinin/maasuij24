@@ -27,7 +27,6 @@ const TestMap = () => {
     features: []
   });
   const [selectedLineId, setSelectedLineId] = useState(null);
-  const [clonedPoint, setClonedPoint] = useState(null); // State for cloned point
   const map = useRef(null);
   const draw = useRef(null);
   const isUpdatingRef = useRef(false);
@@ -40,11 +39,6 @@ const TestMap = () => {
       }
     }
   }, [isLoading, pointsData]);
-
-  // Debugging useEffect to log clonedPoint state changes
-  useEffect(() => {
-    console.log("clonedPoint state updated in TestMap:", clonedPoint);
-  }, [clonedPoint]);
 
   const onMove = () => {
     if (map.current) {
@@ -118,8 +112,7 @@ const TestMap = () => {
           properties: {
             ...f.properties,
             id: f.id,
-            name: f.properties.name || "Unnamed Point",
-            creator: f.properties.creator || 138
+            name: f.properties.name || "Unnamed Point"
           }
         }))
       ]
@@ -130,47 +123,10 @@ const TestMap = () => {
   };
 
   const onPointClick = (e) => {
-    console.log(e.features)
     const coordinates = e.features[0].geometry.coordinates.slice();
     const pointId = e.features[0].properties.id;
     const pointName = e.features[0].properties.name;
-    const pointCreat = e.features[0].properties.creator;
 
-    // Remove existing cloned point if any
-    if (clonedPoint) {
-      console.log("Removing existing cloned point");
-      map.current.getSource('cloned-points').setData({
-        type: 'FeatureCollection',
-        features: []
-      });
-      setClonedPoint(null);
-    }
-
-    // Create a new cloned point
-    const newClonedPoint = {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: coordinates
-      },
-      properties: {
-        id: pointId,
-        name: pointName,
-        creator:pointCreat
-      }
-    };
-
-    console.log("Cloning new point:", newClonedPoint);
-
-    // Update the map source with the new cloned point
-    map.current.getSource('cloned-points').setData({
-      type: 'FeatureCollection',
-      features: [newClonedPoint]
-    });
-
-    setClonedPoint(newClonedPoint);
-
-    // Manage selected points for line drawing
     setSelectedPoints((prevSelectedPoints) => {
       if (prevSelectedPoints.length === 0) {
         return [{ id: pointId, coordinates }];
@@ -181,7 +137,6 @@ const TestMap = () => {
       }
     });
 
-    // Toggle point selection state
     if (map.current) {
       const isSelected = map.current.getFeatureState({
         source: 'points',
@@ -223,11 +178,6 @@ const TestMap = () => {
     setSelectedPoints([]);
   };
 
-  const handleClonedPointUpdate = (newClonedPoint) => {
-    console.log("Updating cloned point state:", newClonedPoint);
-    setClonedPoint(newClonedPoint);
-  };
-
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -259,8 +209,6 @@ const TestMap = () => {
         updatePoints={updatePoints}
         mapRef={map}
         drawRef={draw}
-        clonedPoint={clonedPoint}
-        handleClonedPointUpdate={handleClonedPointUpdate}
       />
       <PointsComponent mapRef={map} drawRef={draw} updatePoints={updatePoints} />
       <LinesComponent selectedPoints={selectedPoints} setLinesData={setLinesData} mapRef={map} />

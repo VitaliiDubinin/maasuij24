@@ -1,7 +1,10 @@
 import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import useUpdateEntity from '../../lib/hooks/useUpdateEntity';
+import { fetchAndUpdateEntities } from '../../lib/hooks/fetchAndUpdateEntities';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
+import { useQueryClient } from '@tanstack/react-query';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -14,16 +17,22 @@ const MapComponent = ({
   linesData,
   onDrawCreate,
   onDrawDelete,
-  onDrawUpdate,
   onPointClick,
   onLineClick,
-  draggedPointId,
-  setDraggedPointId,
   updatePoints,
   mapRef,
-  drawRef
+  drawRef,
+  clonedPoint,
+  handleClonedPointUpdate
 }) => {
+  const queryClient = useQueryClient();
   const mapContainer = useRef(null);
+  const updateEntity = useUpdateEntity();
+  const clonedPointRef = useRef(clonedPoint);
+
+  useEffect(() => {
+    clonedPointRef.current = clonedPoint;
+  }, [clonedPoint]);
 
   useEffect(() => {
     if (mapRef.current) return; // initialize map only once
@@ -60,6 +69,23 @@ const MapComponent = ({
         paint: {
           'circle-radius': 10,
           'circle-color': '#F84C4C' // red color
+        }
+      });
+
+      mapRef.current.addSource('cloned-points', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: []
+        }
+      });
+      mapRef.current.addLayer({
+        id: 'cloned-points',
+        type: 'circle',
+        source: 'cloned-points',
+        paint: {
+          'circle-radius': 10,
+          'circle-color': '#00FF00' // green color for cloned points
         }
       });
 
@@ -119,51 +145,101 @@ const MapComponent = ({
       mapRef.current.on('mouseleave', 'lines', () => {
         mapRef.current.getCanvas().style.cursor = '';
       });
-    });
 
-    mapRef.current.on('move', onMove);
+      mapRef.current.on('move', onMove);
 
-    mapRef.current.on('draw.create', onDrawCreate);
-    mapRef.current.on('draw.delete', onDrawDelete);
-    mapRef.current.on('draw.update', onDrawUpdate);
+      mapRef.current.on('draw.create', onDrawCreate);
+      mapRef.current.on('draw.delete', onDrawDelete);
 
-    // Make points draggable
-    mapRef.current.on('mousedown', 'points', (e) => {
-      const pointId = e.features[0].properties.id;
-      setDraggedPointId(pointId);
-      mapRef.current.getCanvas().style.cursor = 'grabbing';
-      mapRef.current.on('mousemove', onDrag);
-      mapRef.current.once('mouseup', onDrop);
-    });
-
-    const onDrag = (e) => {
-      if (!draggedPointId) return;
-
-      const newCoords = [e.lngLat.lng, e.lngLat.lat];
-      const updatedFeatures = pointsData.features.map((feature) => {
-        if (feature.properties.id === draggedPointId) {
-          feature.geometry.coordinates = newCoords;
-        }
-        return feature;
+      // Make cloned points draggable
+      mapRef.current.on('mousedown', 'cloned-points', (e) => {
+        e.preventDefault(); // Prevent default map drag behavior
+        mapRef.current.getCanvas().style.cursor = 'grabbing';
+        mapRef.current.on('mousemove', onClonedPointMove);
+        mapRef.current.once('mouseup', () => {
+          mapRef.current.getCanvas().style.cursor = '';
+          mapRef.current.off('mousemove', onClonedPointMove);
+          onClonedPointDrop();
+        });
       });
+    });
 
-      const updatedData = {
-        ...pointsData,
-        features: updatedFeatures
-      };
+  }, [pointsData, linesData]);
 
-      updatePoints(updatedData);
-      mapRef.current.getSource('points').setData(updatedData);
+  const onClonedPointMove = (e) => {
+    console.log("try to move cloned point", clonedPointRef.current);
+    if (!clonedPointRef.current) return;
+    console.log("Moving cloned point");
+
+    const newCoordinates = [e.lngLat.lng, e.lngLat.lat];
+
+    const updatedClonedPoint = {
+      ...clonedPointRef.current,
+      geometry: {
+        ...clonedPointRef.current.geometry,
+        coordinates: newCoordinates
+      }
     };
 
-    const onDrop = () => {
-      setDraggedPointId(null);
-      mapRef.current.getCanvas().style.cursor = '';
-      mapRef.current.off('mousemove', onDrag);
-      updatePoints();
+    console.log("Updated cloned point coordinates", newCoordinates);
+
+    mapRef.current.getSource('cloned-points').setData({
+      type: 'FeatureCollection',
+      features: [updatedClonedPoint]
+    });
+
+    handleClonedPointUpdate(updatedClonedPoint); // Update the state with the new coordinates
+  };
+
+  const onClonedPointDrop = async () => {
+    if (!clonedPointRef.current) return;
+    console.log("Dropping cloned point");
+
+    const updatedCoordinates = clonedPointRef.current.geometry.coordinates;
+    const originalPointId = clonedPointRef.current.properties.id;
+
+    // Update the original point with new coordinates
+    const originalPoint = pointsData.features.find(point => point.properties.id === originalPointId);
+    const cleanedId = originalPoint.properties.id.replace("point", "");
+    // const updatedEntity = {
+    //   ...originalPoint,
+    //   geometry: {
+    //     ...originalPoint.geometry,
+    //     coordinates: updatedCoordinates
+    //   }
+    // };
+    const updatedEntity = {
+     // ...originalPoint,
+     persistent:{
+//      id: cleanedId,
+      id: originalPoint.properties.id,
+      creator: originalPoint.properties.creator},
+    point: {
+        //...originalPoint.geometry,
+        x: updatedCoordinates[0],
+        y: updatedCoordinates[1],
+        //coordinates: updatedCoordinates
+      }
     };
 
-  }, [draggedPointId, pointsData, linesData]);
+console.log("updatedEntity",updatedEntity)
+    updateEntity.mutate(updatedEntity, {
+      onSuccess: async () => {
+        console.log("Point updated successfully, fetching new data.");
+        const berta = await fetchAndUpdateEntities(queryClient);
+        updatePoints(berta);
+        // Remove the cloned point
+        mapRef.current.getSource('cloned-points').setData({
+          type: 'FeatureCollection',
+          features: []
+        });
+        handleClonedPointUpdate(null);
+      },
+      onError: (error) => {
+        console.error("Error updating point:", error);
+      }
+    });
+  };
 
   return <div ref={mapContainer} className="map-container" style={{ width: '80%', height: '600px' }} />;
 };

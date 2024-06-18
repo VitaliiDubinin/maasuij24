@@ -6,53 +6,60 @@ const useUpdateEntity = () => {
 
   return useMutation({
     mutationFn: async (entity) => {
-      const cachedPointsData = queryClient.getQueryData(["spoints"]);
-      console.log("from useUpdateHook cachedPointsData", cachedPointsData);
+      console.log("from useUpdateHook entity", entity);
+    //   await queryClient.invalidateQueries(["spoints"]);
+    //   const cachedPointsData = queryClient.getQueryData(["spoints"]);
+    // //  console.log("from useUpdateHook cachedPointsData", cachedPointsData);
 
-      if (!entity.persistent || !entity.persistent.id) {
-        console.error("Entity or entity.persistent.id is undefined", entity);
-        throw new Error("Entity or entity.persistent.id is undefined");
-      }
+    //   if (!entity.persistent || !entity.persistent.id) {
+    //     console.error("Entity or entity.persistent.id is undefined", entity);
+    //     throw new Error("Entity or entity.persistent.id is undefined");
+    //   }
 
-      const cachedEntity = cachedPointsData?.features?.find(
-        (point) => point.properties.id === entity.persistent.id,
-      );
-      if (cachedEntity) {
-        entity.persistent.creator = cachedEntity.properties.creator;
+    //   const cachedEntity = cachedPointsData?.features?.find(
+    //     (point) => point.properties.id === entity.persistent.id,
+    //   );
+    //   if (!cachedEntity) {
+    //     console.error("No cached entity found for id", entity.persistent.id);
+    //     throw new Error("No cached entity found");
+    //   }
+
+    //   // Merge the cached entity data with the new coordinates
+    //   const updatedEntity = {
+    //     ...cachedEntity,
+    //     geometry: {
+    //       type: "Point",
+    //       coordinates: [entity.point.x, entity.point.y],
+    //     },
+    //     properties: {
+    //       ...cachedEntity.properties,
+    //       ...entity.persistent,
+    //     }
+    //   };
+
+    const modifiedEntity = {
+      ...entity,
+      persistent: {
+        ...entity.persistent,
+        id: entity.persistent.id.replace("point", ""),
       }
+    };
+
+
+
       const enroute = `/stop-point/edit`;
-      console.log("Calling updateEntityForm with:", entity, enroute);
-      const response = await updateEntityForm(entity, enroute);
+    //  console.log("Calling updateEntityForm with:", updatedEntity, enroute);
+      console.log("Calling updateEntityForm with:", modifiedEntity, enroute);
+//      const response = await updateEntityForm(updatedEntity, enroute);
+      const response = await updateEntityForm(modifiedEntity, enroute);
       console.log("Response from updateEntityForm:", response);
       return response;
     },
-    onMutate: (newEntityInf) => {
-      console.log("onMutate called with:", newEntityInf);
-      queryClient.setQueryData(["spoints"], (prevEntities) => {
-        if (!prevEntities || !Array.isArray(prevEntities.features)) {
-          console.error("Expected prevEntities.features to be an array, but got:", prevEntities);
-          return prevEntities;
-        }
-        return {
-          ...prevEntities,
-          features: prevEntities.features.map((prevEntity) =>
-            prevEntity.properties.id === newEntityInf.persistent.id
-              ? {
-                  ...prevEntity,
-                  properties: {
-                    ...prevEntity.properties,
-                    ...newEntityInf.persistent,
-                  },
-                  geometry: newEntityInf.point,
-                }
-              : prevEntity,
-          ),
-        };
-      });
-    },
     onSuccess: () => {
       console.log("useUpdateEntity success, invalidating queries");
-      queryClient.invalidateQueries(["spoints"]);
+      queryClient.invalidateQueries(["spoints"]).then(() => {
+        queryClient.refetchQueries(["spoints"]);
+      });
     },
     onError: (error) => {
       console.error("Error in useUpdateEntity mutation:", error);
