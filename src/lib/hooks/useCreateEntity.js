@@ -12,7 +12,7 @@ const useCreateEntity = () => {
       return response;
     },
     onSuccess: async () => {
-      console.log("useCreateEntity success, fetching new data");
+  //    console.log("useCreateEntity success, fetching new data");
       queryClient.invalidateQueries(['spoints']);
       //await fetchAndUpdateEntities(queryClient);
     },

@@ -167,9 +167,9 @@ const MapComponent = ({
   }, [pointsData, linesData]);
 
   const onClonedPointMove = (e) => {
-    console.log("try to move cloned point", clonedPointRef.current);
+  //  console.log("try to move cloned point", clonedPointRef.current);
     if (!clonedPointRef.current) return;
-    console.log("Moving cloned point");
+  //  console.log("Moving cloned point");
 
     const newCoordinates = [e.lngLat.lng, e.lngLat.lat];
 
@@ -181,7 +181,7 @@ const MapComponent = ({
       }
     };
 
-    console.log("Updated cloned point coordinates", newCoordinates);
+  //  console.log("Updated cloned point coordinates", newCoordinates);
 
     mapRef.current.getSource('cloned-points').setData({
       type: 'FeatureCollection',
@@ -193,7 +193,7 @@ const MapComponent = ({
 
   const onClonedPointDrop = async () => {
     if (!clonedPointRef.current) return;
-    console.log("Dropping cloned point");
+  //  console.log("Dropping cloned point");
 
     const updatedCoordinates = clonedPointRef.current.geometry.coordinates;
     const originalPointId = clonedPointRef.current.properties.id;
@@ -222,10 +222,10 @@ const MapComponent = ({
       }
     };
 
-console.log("updatedEntity",updatedEntity)
+//console.log("updatedEntity",updatedEntity)
     updateEntity.mutate(updatedEntity, {
       onSuccess: async () => {
-        console.log("Point updated successfully, fetching new data.");
+    //    console.log("Point updated successfully, fetching new data.");
         const berta = await fetchAndUpdateEntities(queryClient);
         updatePoints(berta);
         // Remove the cloned point

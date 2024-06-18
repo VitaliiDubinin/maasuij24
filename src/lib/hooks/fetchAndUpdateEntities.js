@@ -24,7 +24,7 @@ const convertToGeoJSON = (data) => {
   export const fetchAndUpdateEntities = async (queryClient) => {
     const response = await getData('stop-point/find-all');
     const newPointsData = convertToGeoJSON(response.data);
-    console.log("newPointsData from fetch",newPointsData)
+//    console.log("newPointsData from fetch",newPointsData)
     queryClient.setQueryData(['spoints'], newPointsData);
     return newPointsData;
   };

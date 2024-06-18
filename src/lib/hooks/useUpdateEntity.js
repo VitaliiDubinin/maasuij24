@@ -6,7 +6,7 @@ const useUpdateEntity = () => {
 
   return useMutation({
     mutationFn: async (entity) => {
-      console.log("from useUpdateHook entity", entity);
+  //    console.log("from useUpdateHook entity", entity);
     //   await queryClient.invalidateQueries(["spoints"]);
     //   const cachedPointsData = queryClient.getQueryData(["spoints"]);
     // //  console.log("from useUpdateHook cachedPointsData", cachedPointsData);
@@ -49,14 +49,14 @@ const useUpdateEntity = () => {
 
       const enroute = `/stop-point/edit`;
     //  console.log("Calling updateEntityForm with:", updatedEntity, enroute);
-      console.log("Calling updateEntityForm with:", modifiedEntity, enroute);
+ //     console.log("Calling updateEntityForm with:", modifiedEntity, enroute);
 //      const response = await updateEntityForm(updatedEntity, enroute);
       const response = await updateEntityForm(modifiedEntity, enroute);
-      console.log("Response from updateEntityForm:", response);
+//      console.log("Response from updateEntityForm:", response);
       return response;
     },
     onSuccess: () => {
-      console.log("useUpdateEntity success, invalidating queries");
+//      console.log("useUpdateEntity success, invalidating queries");
       queryClient.invalidateQueries(["spoints"]).then(() => {
         queryClient.refetchQueries(["spoints"]);
       });

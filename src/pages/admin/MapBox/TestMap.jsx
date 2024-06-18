@@ -34,7 +34,7 @@ const TestMap = () => {
 
   useEffect(() => {
     if (!isLoading && pointsData) {
-      console.log("Setting map source data with pointsData");
+  //    console.log("Setting map source data with pointsData");
       if (map.current && map.current.getSource('points')) {
         map.current.getSource('points').setData(pointsData);
       }
@@ -43,7 +43,7 @@ const TestMap = () => {
 
   // Debugging useEffect to log clonedPoint state changes
   useEffect(() => {
-    console.log("clonedPoint state updated in TestMap:", clonedPoint);
+  //  console.log("clonedPoint state updated in TestMap:", clonedPoint);
   }, [clonedPoint]);
 
   const onMove = () => {
@@ -79,7 +79,7 @@ const TestMap = () => {
         }
       };
 
-      console.log("Creating new point:", newSPoint);
+  //    console.log("Creating new point:", newSPoint);
 
       createEntity.mutate(newSPoint, {
         onSuccess: async () => {
@@ -98,7 +98,7 @@ const TestMap = () => {
     deletedPointIds.forEach(id => {
       deleteEntity.mutate(id, {
         onSuccess: async () => {
-          console.log(`Point ${id} deleted successfully, fetching new data.`);
+    //      console.log(`Point ${id} deleted successfully, fetching new data.`);
           const berta = await fetchAndUpdateEntities(queryClient);
           updatePoints(berta);
         }
@@ -130,7 +130,7 @@ const TestMap = () => {
   };
 
   const onPointClick = (e) => {
-    console.log(e.features)
+ //   console.log(e.features)
     const coordinates = e.features[0].geometry.coordinates.slice();
     const pointId = e.features[0].properties.id;
     const pointName = e.features[0].properties.name;
@@ -138,7 +138,7 @@ const TestMap = () => {
 
     // Remove existing cloned point if any
     if (clonedPoint) {
-      console.log("Removing existing cloned point");
+   //   console.log("Removing existing cloned point");
       map.current.getSource('cloned-points').setData({
         type: 'FeatureCollection',
         features: []
@@ -160,7 +160,7 @@ const TestMap = () => {
       }
     };
 
-    console.log("Cloning new point:", newClonedPoint);
+  //  console.log("Cloning new point:", newClonedPoint);
 
     // Update the map source with the new cloned point
     map.current.getSource('cloned-points').setData({
@@ -224,7 +224,7 @@ const TestMap = () => {
   };
 
   const handleClonedPointUpdate = (newClonedPoint) => {
-    console.log("Updating cloned point state:", newClonedPoint);
+  //  console.log("Updating cloned point state:", newClonedPoint);
     setClonedPoint(newClonedPoint);
   };
 

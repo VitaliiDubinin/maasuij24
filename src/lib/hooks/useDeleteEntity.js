@@ -7,7 +7,7 @@ const useDeleteEntity = () => {
 
   return useMutation({
     mutationFn: async (entityId) => {
-      console.log("from useDeleteHook", entityId);
+  //    console.log("from useDeleteHook", entityId);
       const enroute = `/stop-point/`;
 
 //      await deleteEntity(entityId, enroute);
