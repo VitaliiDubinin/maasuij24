@@ -5,7 +5,7 @@ import useUpdateEntity from '../../../lib/hooks/useUpdateEntity';
 import useDeleteEntity from '../../../lib/hooks/useDeleteEntity';
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
-import LinesComponent from "../../../components/mapbox/LinesComponent";
+import LinesComponent from "../../../components/mapbox/LinksComponent";
 import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
 

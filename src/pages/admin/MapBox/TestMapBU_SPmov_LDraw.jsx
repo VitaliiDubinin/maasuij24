@@ -1,14 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useGetEntity } from '../../../lib/hooks/useGetEntity';
-import { useGetLinks } from '../../../lib/hooks/useGetLinks';
 import useCreateEntity from '../../../lib/hooks/useCreateEntity';
 import useUpdateEntity from '../../../lib/hooks/useUpdateEntity';
 import useDeleteEntity from '../../../lib/hooks/useDeleteEntity';
 import { fetchAndUpdateEntities } from '../../../lib/hooks/fetchAndUpdateEntities';  // Import the fetchAndUpdateEntities function
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
-import LinksComponent from "../../../components/mapbox/LinksComponent";
-import LinesComponent from "../../../components/mapbox/LinesComponent";
+import LinesComponent from "../../../components/mapbox/LinksComponent";
 import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,9 +14,6 @@ import { useQueryClient } from '@tanstack/react-query';
 const TestMap = () => {
   const queryClient = useQueryClient();
   const { data: pointsData, isLoading, error } = useGetEntity();
-  //console.log("pointsData",pointsData)
-  const { data: linksData, isLoading: isLoadingLinks, error: errorLinks } = useGetLinks();
-  //console.log("linksData",linksData)
   const createEntity = useCreateEntity();
   const updateEntity = useUpdateEntity();
   const deleteEntity = useDeleteEntity();
@@ -45,16 +40,6 @@ const TestMap = () => {
       }
     }
   }, [isLoading, pointsData]);
-
-  useEffect(() => {
-    if (!isLoadingLinks && linksData) {
-      if (map.current && map.current.getSource('links')) {
-        map.current.getSource('links').setData(linksData);
-      }
-    }
-  }, [isLoadingLinks, linksData]);
-
-
 
   // Debugging useEffect to log clonedPoint state changes
   useEffect(() => {
@@ -267,7 +252,6 @@ const TestMap = () => {
         onMove={onMove}
         pointsData={pointsData}
         linesData={linesData}
-        linksData={linksData}
         onDrawCreate={onDrawCreate}
         onDrawDelete={onDrawDelete}
         onPointClick={onPointClick}
@@ -279,8 +263,6 @@ const TestMap = () => {
         handleClonedPointUpdate={handleClonedPointUpdate}
       />
       <PointsComponent mapRef={map} drawRef={draw} updatePoints={updatePoints} />
-      {/* <LinksComponent mapRef={map}  /> */}
-      {/* <LinksComponent mapRef={map} linksData={linksData} /> */}
       <LinesComponent selectedPoints={selectedPoints} setLinesData={setLinesData} mapRef={map} />
     </div>
   );

@@ -15,7 +15,6 @@ const MapComponent = ({
   onMove,
   pointsData,
   linesData,
-  linksData,
   onDrawCreate,
   onDrawDelete,
   onPointClick,
@@ -30,8 +29,7 @@ const MapComponent = ({
   const mapContainer = useRef(null);
   const updateEntity = useUpdateEntity();
   const clonedPointRef = useRef(clonedPoint);
-console.log("linesData",linesData)
-console.log("linksData",linksData)
+
   useEffect(() => {
     clonedPointRef.current = clonedPoint;
   }, [clonedPoint]);
@@ -125,29 +123,6 @@ console.log("linksData",linksData)
           'icon-ignore-placement': true
         }
       });
-
-      mapRef.current.addSource('links', {
-        type: 'geojson',
-        data: linksData
-      });
-
-      mapRef.current.addLayer({
-        id: 'links',
-        type: 'line',
-        source: 'links',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
-        paint: {
-          'line-color': '#888',
-          'line-width': 8
-        }
-      });
-
-
-
-
 
       // Add click event handler for points
       mapRef.current.on('click', 'points', onPointClick);
