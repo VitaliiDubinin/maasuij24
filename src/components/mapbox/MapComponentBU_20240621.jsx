@@ -31,10 +31,6 @@ const MapComponent = ({
   const updateEntity = useUpdateEntity();
   const clonedPointRef = useRef(clonedPoint);
 
-  // console.log(pointsData)
-  // console.log(linesData)
-  // console.log(linksData)
-
   useEffect(() => {
     clonedPointRef.current = clonedPoint;
   }, [clonedPoint]);
@@ -133,6 +129,7 @@ const MapComponent = ({
         type: 'geojson',
         data: linksData
       });
+
       mapRef.current.addLayer({
         id: 'links',
         type: 'line',
@@ -142,14 +139,15 @@ const MapComponent = ({
           'line-cap': 'round'
         },
         paint: {
-          'line-color': '#734',
-          'line-width': 6,
-         // 'line-dasharray': [1, 3],
-
+          'line-color': '#888',
+          'line-width': 8
         }
       });
 
+      // Add click event handler for points
       mapRef.current.on('click', 'points', onPointClick);
+
+      // Add click event handler for lines
       mapRef.current.on('click', 'lines', onLineClick);
 
       mapRef.current.on('mouseenter', 'points', () => {
@@ -173,8 +171,9 @@ const MapComponent = ({
       mapRef.current.on('draw.create', onDrawCreate);
       mapRef.current.on('draw.delete', onDrawDelete);
 
+      // Make cloned points draggable
       mapRef.current.on('mousedown', 'cloned-points', (e) => {
-        e.preventDefault();
+        e.preventDefault(); // Prevent default map drag behavior
         mapRef.current.getCanvas().style.cursor = 'grabbing';
         mapRef.current.on('mousemove', onClonedPointMove);
         mapRef.current.once('mouseup', () => {
@@ -185,7 +184,7 @@ const MapComponent = ({
       });
     });
 
-  }, [lng, lat, zoom, onMove, pointsData, linesData, linksData, onDrawCreate, onDrawDelete, onPointClick, onLineClick]);
+  }, [pointsData, linesData, linksData]);
 
   useEffect(() => {
     if (mapRef.current && mapRef.current.getSource('points')) {
@@ -217,7 +216,7 @@ const MapComponent = ({
       features: [updatedClonedPoint]
     });
 
-    handleClonedPointUpdate(updatedClonedPoint);
+    handleClonedPointUpdate(updatedClonedPoint); // Update the state with the new coordinates
   };
 
   const onClonedPointDrop = async () => {
@@ -227,6 +226,7 @@ const MapComponent = ({
     const originalPointId = clonedPointRef.current.properties.id;
 
     const originalPoint = pointsData.features.find(point => point.properties.id === originalPointId);
+    const cleanedId = originalPoint.properties.id.replace("point", "");
     const updatedEntity = {
       persistent: {
         id: originalPoint.properties.id,
@@ -240,8 +240,8 @@ const MapComponent = ({
 
     updateEntity.mutate(updatedEntity, {
       onSuccess: async () => {
-        const updatedPointsData = await fetchAndUpdateEntities(queryClient);
-        updatePoints(updatedPointsData);
+        const berta = await fetchAndUpdateEntities(queryClient);
+        updatePoints(berta);
         mapRef.current.getSource('cloned-points').setData({
           type: 'FeatureCollection',
           features: []

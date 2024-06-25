@@ -4,7 +4,7 @@ import { useGetLinks } from '../../../lib/hooks/useGetLinks';
 import useCreateEntity from '../../../lib/hooks/useCreateEntity';
 import useUpdateEntity from '../../../lib/hooks/useUpdateEntity';
 import useDeleteEntity from '../../../lib/hooks/useDeleteEntity';
-import { fetchAndUpdateEntities } from '../../../lib/hooks/fetchAndUpdateEntities';
+import { fetchAndUpdateEntities } from '../../../lib/hooks/fetchAndUpdateEntities';  // Import the fetchAndUpdateEntities function
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
 import LinksComponent from "../../../components/mapbox/LinksComponent";
@@ -31,13 +31,9 @@ const TestMap = () => {
   });
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [clonedPoint, setClonedPoint] = useState(null); // State for cloned point
-  const [initialLinksData] = useState({
-    type: 'FeatureCollection',
-    features: []
-  });
-
   const map = useRef(null);
   const draw = useRef(null);
+  const isUpdatingRef = useRef(false);
 
   useEffect(() => {
     if (!isLoading && pointsData) {
@@ -45,15 +41,12 @@ const TestMap = () => {
         map.current.getSource('points').setData(pointsData);
       }
     }
-  }, [isLoading, pointsData]);
-
-  // useEffect(() => {
-  //   if (!isLoading && linksData) {
-  //     if (map.current && map.current.getSource('links')) {
-  //       map.current.getSource('links').setData(linksData);
-  //     }
-  //   }
-  // }, [isLoading, linksData]);
+    if (!isLoadingLinks && linksData) {
+      if (map.current && map.current.getSource('links')) {
+        map.current.getSource('links').setData(linksData);
+      }
+    }
+  }, [isLoading, pointsData, isLoadingLinks, linksData]);
 
   const onMove = () => {
     if (map.current) {
@@ -89,8 +82,8 @@ const TestMap = () => {
 
       createEntity.mutate(newSPoint, {
         onSuccess: async () => {
-          const updatedPointsData = await fetchAndUpdateEntities(queryClient);
-          updatePoints(updatedPointsData);
+          const berta = await fetchAndUpdateEntities(queryClient);
+          updatePoints(berta);
         }
       });
     } else {
@@ -103,8 +96,8 @@ const TestMap = () => {
     deletedPointIds.forEach(id => {
       deleteEntity.mutate(id, {
         onSuccess: async () => {
-          const updatedPointsData = await fetchAndUpdateEntities(queryClient);
-          updatePoints(updatedPointsData);
+          const berta = await fetchAndUpdateEntities(queryClient);
+          updatePoints(berta);
         }
       });
     });
@@ -137,7 +130,7 @@ const TestMap = () => {
     const coordinates = e.features[0].geometry.coordinates.slice();
     const pointId = e.features[0].properties.id;
     const pointName = e.features[0].properties.name;
-    const pointCreator = e.features[0].properties.creator;
+    const pointCreat = e.features[0].properties.creator;
 
     if (clonedPoint) {
       map.current.getSource('cloned-points').setData({
@@ -156,7 +149,7 @@ const TestMap = () => {
       properties: {
         id: pointId,
         name: pointName,
-        creator: pointCreator
+        creator: pointCreat
       }
     };
 
@@ -246,7 +239,7 @@ const TestMap = () => {
         onMove={onMove}
         pointsData={pointsData}
         linesData={linesData}
-        linksData={linksData || initialLinksData} // Use initial empty links data until the actual data is available
+        linksData={linksData}
         onDrawCreate={onDrawCreate}
         onDrawDelete={onDrawDelete}
         onPointClick={onPointClick}
