@@ -9,20 +9,25 @@ import PointsComponent from "../../../components/mapbox/PointsComponent";
 import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
 import { useQueryClient } from '@tanstack/react-query';
+//import useCreateLink from '../../../lib/hooks/useCreateLink';
 
 const TestMap = () => {
   const queryClient = useQueryClient();
   const { data: pointsData, isLoading, error } = useGetEntity();
+
   const createEntity = useCreateEntity();
   const updateEntity = useUpdateEntity();
   const deleteEntity = useDeleteEntity();
+  //const createLink = useCreateLink();
 
   const [lng, setLng] = useState(27.6);
   const [lat, setLat] = useState(42.6);
   const [zoom, setZoom] = useState(9);
   const [selectedPoints, setSelectedPoints] = useState([]);
-  const [selectedLineId, setSelectedLineId] = useState(null);
-  const [clonedPoint, setClonedPoint] = useState(null); 
+
+
+  const [clonedPoint, setClonedPoint] = useState(null); // State for cloned point
+
 
   const map = useRef(null);
   const draw = useRef(null);
@@ -34,8 +39,6 @@ const TestMap = () => {
       }
     }
   }, [isLoading, pointsData]);
-
-
 
   const onMove = () => {
     if (map.current) {
@@ -152,13 +155,32 @@ const TestMap = () => {
 
     setSelectedPoints((prevSelectedPoints) => {
       if (prevSelectedPoints.length === 0) {
-        console.log("startPoint of Link chosed")
         return [{ id: pointId, coordinates }];
       } else if (prevSelectedPoints.length === 1 && prevSelectedPoints[0].id !== pointId) {
-        console.log("endPoint of Link chosed")
         return [...prevSelectedPoints, { id: pointId, coordinates }];
+        // const point1 = prevSelectedPoints[0];
+        // const point2 = { id: pointId, coordinates };
+        // console.log("point1",point1)
+        // console.log("point2",point2)
+
+        // Create a new link when two points are selected
+        // const newLink = {
+        //   point1_id: point1.id,
+        //   point2_id: point2.id,
+        //   creator: 133,
+        //   description: null,
+        //   locales: [],
+        //   active: null
+        // };
+
+        // createLink.mutate(newLink, {
+        //   onSuccess: async () => {
+        //     queryClient.invalidateQueries('links');
+        //   }
+        // });
+
+       // return [];
       } else {
-        console.log("startPoint of Link rearranged")
         return [{ id: pointId, coordinates }];
       }
     });
@@ -176,11 +198,14 @@ const TestMap = () => {
     }
   };
 
-
-
   const deleteSelectedPoints = () => {
     selectedPoints.forEach(point => {
-      deleteEntity.mutate(point.id);
+      deleteEntity.mutate(point.id, {
+        onSuccess: async () => {
+          const updatedPointsData = await fetchAndUpdateEntities(queryClient);
+          updatePoints(updatedPointsData);
+        }
+      });
     });
     setSelectedPoints([]);
   };
@@ -201,7 +226,6 @@ const TestMap = () => {
     <div>
       <Sidebar lng={lng} lat={lat} zoom={zoom} />
       <InfoBox
-
         deleteSelectedPoints={deleteSelectedPoints}
 
         selectedPoints={selectedPoints}
@@ -212,6 +236,7 @@ const TestMap = () => {
         zoom={zoom}
         onMove={onMove}
         pointsData={pointsData}
+
         onDrawCreate={onDrawCreate}
         onDrawDelete={onDrawDelete}
         onPointClick={onPointClick}
@@ -222,6 +247,7 @@ const TestMap = () => {
         handleClonedPointUpdate={handleClonedPointUpdate}
       />
       <PointsComponent mapRef={map} drawRef={draw} updatePoints={updatePoints} />
+
     </div>
   );
 };

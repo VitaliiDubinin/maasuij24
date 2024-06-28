@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useGetEntity } from '../../../lib/hooks/useGetEntity';
+import { useGetLinks } from '../../../lib/hooks/useGetLinks';
 import useCreateEntity from '../../../lib/hooks/useCreateEntity';
 import useUpdateEntity from '../../../lib/hooks/useUpdateEntity';
 import useDeleteEntity from '../../../lib/hooks/useDeleteEntity';
 import { fetchAndUpdateEntities } from '../../../lib/hooks/fetchAndUpdateEntities';
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
+import LinksComponent from "../../../components/mapbox/LinksComponent";
+import LinesComponent from "../../../components/mapbox/LinesComponent";
 import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
 import { useQueryClient } from '@tanstack/react-query';
@@ -13,6 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 const TestMap = () => {
   const queryClient = useQueryClient();
   const { data: pointsData, isLoading, error } = useGetEntity();
+  const { data: linksData, isLoading: isLoadingLinks, error: errorLinks } = useGetLinks();
   const createEntity = useCreateEntity();
   const updateEntity = useUpdateEntity();
   const deleteEntity = useDeleteEntity();
@@ -21,8 +25,16 @@ const TestMap = () => {
   const [lat, setLat] = useState(42.6);
   const [zoom, setZoom] = useState(9);
   const [selectedPoints, setSelectedPoints] = useState([]);
+  const [linesData, setLinesData] = useState({
+    type: 'FeatureCollection',
+    features: []
+  });
   const [selectedLineId, setSelectedLineId] = useState(null);
-  const [clonedPoint, setClonedPoint] = useState(null); 
+  const [clonedPoint, setClonedPoint] = useState(null); // State for cloned point
+  const [initialLinksData] = useState({
+    type: 'FeatureCollection',
+    features: []
+  });
 
   const map = useRef(null);
   const draw = useRef(null);
@@ -35,7 +47,13 @@ const TestMap = () => {
     }
   }, [isLoading, pointsData]);
 
-
+  // useEffect(() => {
+  //   if (!isLoading && linksData) {
+  //     if (map.current && map.current.getSource('links')) {
+  //       map.current.getSource('links').setData(linksData);
+  //     }
+  //   }
+  // }, [isLoading, linksData]);
 
   const onMove = () => {
     if (map.current) {
@@ -116,7 +134,6 @@ const TestMap = () => {
   };
 
   const onPointClick = (e) => {
-    console.log(e)
     const coordinates = e.features[0].geometry.coordinates.slice();
     const pointId = e.features[0].properties.id;
     const pointName = e.features[0].properties.name;
@@ -152,13 +169,10 @@ const TestMap = () => {
 
     setSelectedPoints((prevSelectedPoints) => {
       if (prevSelectedPoints.length === 0) {
-        console.log("startPoint of Link chosed")
         return [{ id: pointId, coordinates }];
       } else if (prevSelectedPoints.length === 1 && prevSelectedPoints[0].id !== pointId) {
-        console.log("endPoint of Link chosed")
         return [...prevSelectedPoints, { id: pointId, coordinates }];
       } else {
-        console.log("startPoint of Link rearranged")
         return [{ id: pointId, coordinates }];
       }
     });
@@ -176,7 +190,26 @@ const TestMap = () => {
     }
   };
 
+  const onLineClick = (e) => {
+    const lineId = e.features[0].properties.id;
+    setSelectedLineId(lineId);
+  };
 
+  const deleteSelectedLine = () => {
+    if (selectedLineId) {
+      setLinesData((prevLinesData) => {
+        const updatedLines = {
+          ...prevLinesData,
+          features: prevLinesData.features.filter(line => line.properties.id !== selectedLineId)
+        };
+        if (map.current && map.current.getSource('lines')) {
+          map.current.getSource('lines').setData(updatedLines);
+        }
+        return updatedLines;
+      });
+      setSelectedLineId(null);
+    }
+  };
 
   const deleteSelectedPoints = () => {
     selectedPoints.forEach(point => {
@@ -201,9 +234,9 @@ const TestMap = () => {
     <div>
       <Sidebar lng={lng} lat={lat} zoom={zoom} />
       <InfoBox
-
+        deleteSelectedLine={deleteSelectedLine}
         deleteSelectedPoints={deleteSelectedPoints}
-
+        selectedLineId={selectedLineId}
         selectedPoints={selectedPoints}
       />
       <MapComponent
@@ -212,9 +245,12 @@ const TestMap = () => {
         zoom={zoom}
         onMove={onMove}
         pointsData={pointsData}
+        linesData={linesData}
+        linksData={linksData || initialLinksData} // Use initial empty links data until the actual data is available
         onDrawCreate={onDrawCreate}
         onDrawDelete={onDrawDelete}
         onPointClick={onPointClick}
+        onLineClick={onLineClick}
         updatePoints={updatePoints}
         mapRef={map}
         drawRef={draw}
@@ -222,6 +258,8 @@ const TestMap = () => {
         handleClonedPointUpdate={handleClonedPointUpdate}
       />
       <PointsComponent mapRef={map} drawRef={draw} updatePoints={updatePoints} />
+      <LinksComponent mapRef={map} linksData={linksData} />
+      <LinesComponent selectedPoints={selectedPoints} setLinesData={setLinesData} mapRef={map} />
     </div>
   );
 };
