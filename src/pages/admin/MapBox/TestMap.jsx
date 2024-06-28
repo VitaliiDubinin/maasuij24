@@ -3,6 +3,7 @@ import { useGetEntity } from '../../../lib/hooks/useGetEntity';
 import useCreateEntity from '../../../lib/hooks/useCreateEntity';
 import useUpdateEntity from '../../../lib/hooks/useUpdateEntity';
 import useDeleteEntity from '../../../lib/hooks/useDeleteEntity';
+import useCreateLink from '../../../lib/hooks/useCreateLink';
 import { fetchAndUpdateEntities } from '../../../lib/hooks/fetchAndUpdateEntities';
 import MapComponent from "../../../components/mapbox/MapComponent";
 import PointsComponent from "../../../components/mapbox/PointsComponent";
@@ -16,6 +17,7 @@ const TestMap = () => {
   const createEntity = useCreateEntity();
   const updateEntity = useUpdateEntity();
   const deleteEntity = useDeleteEntity();
+  const createLink = useCreateLink();
 
   const [lng, setLng] = useState(27.6);
   const [lat, setLat] = useState(42.6);
@@ -23,6 +25,7 @@ const TestMap = () => {
   const [selectedPoints, setSelectedPoints] = useState([]);
   const [selectedLineId, setSelectedLineId] = useState(null);
   const [clonedPoint, setClonedPoint] = useState(null); 
+  const [isLinkCreating, setIsLinkCreating] = useState(false);
 
   const map = useRef(null);
   const draw = useRef(null);
@@ -34,6 +37,27 @@ const TestMap = () => {
       }
     }
   }, [isLoading, pointsData]);
+
+  useEffect(() => {
+    console.log({selectedPoints,isLinkCreating})
+    if (selectedPoints.length === 2 && !isLinkCreating) {
+      setIsLinkCreating(true);
+      console.log("Creating Link between", selectedPoints);
+      createLink.mutate(selectedPoints, {
+        onSuccess: async () => {
+          console.log("Link created successfully");
+          setIsLinkCreating(false);
+          setSelectedPoints([]); // Clear selected points after link creation
+        },
+        onError: (error) => {
+          console.error("Link creation failed", error);
+          setIsLinkCreating(false);
+          setSelectedPoints([]);
+          // Optionally add retry logic or user feedback here
+        }
+      });
+    }
+  }, [selectedPoints, isLinkCreating, createLink]);
 
 
 
@@ -162,6 +186,7 @@ const TestMap = () => {
         return [{ id: pointId, coordinates }];
       }
     });
+ 
 
     if (map.current) {
       const isSelected = map.current.getFeatureState({
@@ -176,7 +201,18 @@ const TestMap = () => {
     }
   };
 
+//  console.log(selectedPoints)
 
+//if (selectedPoints.length === 2 ) {
+//  console.log("will create Link between",selectedPoints)
+
+//    createLink.mutate(selectedPoints,{
+//      onSuccess: async () => {
+  
+//      }
+//    })
+
+//    } else {console.log("can't create Link, only one point choosen")}
 
   const deleteSelectedPoints = () => {
     selectedPoints.forEach(point => {

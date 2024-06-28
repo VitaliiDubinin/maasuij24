@@ -14,8 +14,9 @@ export const getData = async (endpoint) => {
 
 export const createEntityForm = async (newent, enroute) => {
   try {
-    const requestBody = JSON.stringify(newent);
-
+   const requestBody = JSON.stringify(newent);
+   //const requestBody = newent;
+console.log(requestBody)
     const headers = {
       "Content-Type": "application/json",
       api_key: apiKey,

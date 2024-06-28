@@ -7,13 +7,28 @@ const useCreateLink = () => {
 
   return useMutation({
     mutationFn: async (entity) => {
-      const enroute = `/link/create`;
-      const response = await createEntityForm(entity, enroute);
+      console.log(entity)
+       const enroute = `/link/create`;
+       const reqbody = {
+        number: 44,
+        startPointId: entity[0].id.slice(5),
+        finishPointId: entity[1].id.slice(5),
+        productive: true,
+        stored: {
+            id: null,
+            creator: 138,
+            active: true
+        }     
+    }
+
+//    console.log(reqbody)
+
+       const response = await createEntityForm(reqbody, enroute);
       return response;
     },
     onSuccess: async () => {
-  //    console.log("useCreateEntity success, fetching new data");
-      queryClient.invalidateQueries(['links']);
+     console.log("useCreateEntity success, fetching new data");
+   //   queryClient.invalidateQueries(['links']);
       //await fetchAndUpdateEntities(queryClient);
     },
     onError: (error) => {
