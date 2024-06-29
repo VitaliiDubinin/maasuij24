@@ -7,10 +7,12 @@ const useCreateLink = () => {
 
   return useMutation({
     mutationFn: async (entity) => {
-      console.log(entity)
+//      console.log(entity)
+       const number = new Date().getTime().toString().slice(-4);
        const enroute = `/link/create`;
        const reqbody = {
-        number: 44,
+    //    number: 46,
+        number: parseInt(number, 10),
         startPointId: entity[0].id.slice(5),
         finishPointId: entity[1].id.slice(5),
         productive: true,
@@ -27,7 +29,7 @@ const useCreateLink = () => {
       return response;
     },
     onSuccess: async () => {
-     console.log("useCreateEntity success, fetching new data");
+     console.log("useCreateLink success, fetching new data");
    //   queryClient.invalidateQueries(['links']);
       //await fetchAndUpdateEntities(queryClient);
     },
