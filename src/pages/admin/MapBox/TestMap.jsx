@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useGetEntity } from '../../../lib/hooks/useGetEntity';
+import { useGetRoutes } from '../../../lib/hooks/useGetRoutes';
 import useCreateEntity from '../../../lib/hooks/useCreateEntity';
 import useDeleteEntity from '../../../lib/hooks/useDeleteEntity';
 import useCreateLink from '../../../lib/hooks/useCreateLink';
@@ -15,6 +16,10 @@ import { useQueryClient } from '@tanstack/react-query';
 const TestMap = () => {
   const queryClient = useQueryClient();
   const { data: pointsData, isLoading, error } = useGetEntity();
+  
+  //const { data: pointsData, isLoading: isLoadingPoints, error: pointsError } = useGetEntity();
+  const { data: routesData, isLoading: isLoadingRoutes, error: routesError } = useGetRoutes();
+  console.log("routesData",routesData)
   const createEntity = useCreateEntity();
   const deleteEntity = useDeleteEntity();
   const createLink = useCreateLink();
@@ -26,10 +31,10 @@ const TestMap = () => {
   const [selectedPoints, setSelectedPoints] = useState([]);
   const [clonedPoint, setClonedPoint] = useState(null); 
   const [isLinkCreating, setIsLinkCreating] = useState(false);
-  const [routesData, setRoutesData] = useState({
-    type: 'FeatureCollection',
-    features: []
-  });
+  // const [routesData, setRoutesData] = useState({
+  //   type: 'FeatureCollection',
+  //   features: []
+  // });
 
   const map = useRef(null);
   const draw = useRef(null);
@@ -255,15 +260,25 @@ const TestMap = () => {
       geometry: matchedCoords,
       properties: {}
     });
+    await saveRouteToDatabase(matchedCoords); 
   };
 
+  const saveRouteToDatabase = async (route) => {
+    // Implement the logic to save the route to your database here
+    await fetch('/api/save-route', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ route }),
+    });
+  };
 
-
-  if (isLoading) {
+  if (isLoading || isLoadingRoutes) {
     return <div>Loading...</div>;
   }
 
-  if (error) {
+  if (error || routesError) {
     return <div>Error loading points data: {error.message}</div>;
   }
 
@@ -288,7 +303,7 @@ const TestMap = () => {
         drawRef={draw}
         clonedPoint={clonedPoint}
         handleClonedPointUpdate={handleClonedPointUpdate}
-        // routesData={routesData}
+        routesData={routesData}
         updateRoute={updateRoute}
       />
       <PointsComponent mapRef={map} drawRef={draw} updatePoints={updatePoints} />

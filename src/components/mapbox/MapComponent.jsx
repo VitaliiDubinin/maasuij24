@@ -22,7 +22,7 @@ const MapComponent = ({
   drawRef,
   clonedPoint,
   handleClonedPointUpdate,
-//  routesData
+  routesData,
   updateRoute
 }) => {
   const queryClient = useQueryClient();
@@ -90,23 +90,25 @@ const MapComponent = ({
         }
       });
 
-      // mapRef.current.addSource('routes', {
-      //   type: 'geojson',
-      //   data: routesData
-      // });
-      // mapRef.current.addLayer({
-      //   id: 'routes',
-      //   type: 'line',
-      //   source: 'routes',
-      //   layout: {
-      //     'line-join': 'round',
-      //     'line-cap': 'round'
-      //   },
-      //   paint: {
-      //     'line-color': '#880000',
-      //     'line-width': 4
-      //   }
-      // });
+      if (routesData) {
+      mapRef.current.addSource('routes', {
+        type: 'geojson',
+        data: routesData
+      });
+      mapRef.current.addLayer({
+        id: 'routes',
+        type: 'line',
+        source: 'routes',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#880000',
+          'line-width': 4
+        }
+      });
+    }
 
       mapRef.current.on('click', 'points', onPointClick);
 
@@ -143,19 +145,19 @@ const MapComponent = ({
         });
       });
     });
-//  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick, routesData]);
-  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick]);
+  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick, routesData]);
+//  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick]);
 
   useEffect(() => {
     if (mapRef.current && mapRef.current.getSource('points')) {
       mapRef.current.getSource('points').setData(pointsData);
     }
-    // if (mapRef.current && mapRef.current.getSource('routes')) {
-    //   mapRef.current.getSource('routes').setData(routesData);
-    //   console.log('Updated route data:', routesData);
-    // }
-//  }, [pointsData, routesData]);
-  }, [pointsData]);
+    if (mapRef.current && mapRef.current.getSource('routes')) {
+      mapRef.current.getSource('routes').setData(routesData);
+      console.log('Updated route data:', routesData);
+    }
+  }, [pointsData, routesData]);
+ // }, [pointsData]);
 
   const onClonedPointMove = (e) => {
     if (!clonedPointRef.current) return;
