@@ -10,7 +10,9 @@ import RouteComponent from "../../../components/mapbox/RouteComponent";
 import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
 import { useQueryClient } from '@tanstack/react-query';
-
+import { lineString } from '@turf/helpers';
+import length from '@turf/length';
+import along from '@turf/along';
 
 const TestMap = () => {
   const queryClient = useQueryClient();
@@ -19,7 +21,9 @@ const TestMap = () => {
   const deleteEntity = useDeleteEntity();
   const createLink = useCreateLink();
 
-
+  // const [lng, setLng] = useState(27.6);
+  // const [lat, setLat] = useState(42.6);
+  // const [zoom, setZoom] = useState(9);
   const [lng, setLng] = useState(27.618);
   const [lat, setLat] = useState(42.6995);
   const [zoom, setZoom] = useState(12.8);
@@ -49,9 +53,16 @@ const TestMap = () => {
         onSuccess: async () => {
           setIsLinkCreating(false);
           const lineCoordinates = selectedPoints.map(point => point.coordinates);
-
+          // draw.current.add({
+          //   type: 'Feature',
+          //   geometry: {
+          //     type: 'LineString',
+          //     coordinates: lineCoordinates
+          //   }
+          // });
           createRoute(lineCoordinates);
           setSelectedPoints([]);
+//          createRoute(selectedPoints[0].coordinates, selectedPoints[1].coordinates);
         },
         onError: (error) => {
           console.error("Link creation failed", error);
@@ -62,7 +73,49 @@ const TestMap = () => {
     }
   }, [selectedPoints, isLinkCreating, createLink]);
 
+  // const createRoute = async (start, end, interval = 0.2) => {
+  //   const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`;
+    
+  //   try {
+  //     const response = await fetch(url);
+  //     const data = await response.json();
+  //     const route = data.routes[0].geometry;
+  //     const resampledRoute = resampleRoute(route, interval);
+
+
+  //     setRoutesData({
+  //       type: 'FeatureCollection',
+  //       features: [{
+  //         type: 'Feature',
+  //      //   geometry: route,
+  //         geometry: resampledRoute,
+  //         properties: {}
+  //       }]
+  //     });
+
+  //     console.log('Fetched route data:', route);
+  //   } catch (error) {
+  //     console.error("Error fetching route:", error);
+  //   }
+  // };
+
+  // const resampleRoute = (route, interval) => {
+  //   const line = lineString(route.coordinates);
+  //   const lineLength = length(line, { units: 'kilometers' });
   
+  //   const numPoints = Math.ceil(lineLength / interval);
+  //   const resampledCoordinates = [];
+  
+  //   for (let i = 0; i <= numPoints; i++) {
+  //     const segment = along(line, i * interval, { units: 'kilometers' });
+  //     resampledCoordinates.push(segment.geometry.coordinates);
+  //   }
+  
+  //   return {
+  //     type: 'LineString',
+  //     coordinates: resampledCoordinates
+  //   };
+  // };
 
   const onMove = () => {
     if (map.current) {
@@ -75,7 +128,38 @@ const TestMap = () => {
     }
   };
 
-  
+  // const onDrawCreate = (e) => {
+  //   const newPoint = e.features[0];
+  //   const pointName = prompt("Enter a name for the new point:", "New Point");
+
+  //   if (pointName) {
+  //     const newSPoint = {
+  //       persistent: {
+  //         id: null,
+  //         name: pointName,
+  //         description: null,
+  //         creator: 133,
+  //         locales: [],
+  //         active: null
+  //       },
+  //       number: 868,
+  //       point: {
+  //         x: newPoint.geometry.coordinates[0],
+  //         y: newPoint.geometry.coordinates[1]
+  //       }
+  //     };
+
+  //     createEntity.mutate(newSPoint, {
+  //       onSuccess: async () => {
+  //         const updatedPointsData = await fetchAndUpdateEntities(queryClient);
+  //         updatePoints(updatedPointsData);
+  //       }
+  //     });
+  //   } else {
+  //     draw.current.delete(newPoint.id);
+  //   }
+  // };
+
   const onDrawCreate = (e) => {
     const newFeature = e.features[0];
     const geometryType = newFeature.geometry.type;
@@ -109,7 +193,34 @@ const TestMap = () => {
       } else {
         draw.current.delete(newFeature.id);
       }
-
+    // } else if (geometryType === 'LineString') {
+    //   const lineName = prompt("Enter a name for the new line:", "New Line");
+  
+    //   if (lineName) {
+    //     const newSLine = {
+    //       persistent: {
+    //         id: null,
+    //         name: lineName,
+    //         description: null,
+    //         creator: 133,
+    //         locales: [],
+    //         active: null
+    //       },
+    //       number: 868,
+    //       line: {
+    //         coordinates: newFeature.geometry.coordinates
+    //       }
+    //     };
+  
+    //     createEntity.mutate(newSLine, {
+    //       onSuccess: async () => {
+    //         const updatedLinesData = await fetchAndUpdateEntities(queryClient);
+    //         updatePoints(updatedLinesData);
+    //       }
+    //     });
+    //   } else {
+    //     draw.current.delete(newFeature.id);
+    //   }
     }
   };
 
@@ -224,7 +335,12 @@ const TestMap = () => {
     getMatch(newCoords, radius, profile);
   };
 
-
+  // const updateRoute = (coords) => {
+  //   const profile = 'driving';
+  //   const newCoords = coords.join(';');
+  //   const radius = coords.map(() => 50);
+  //   getMatch(newCoords, radius, profile);
+  // };
 
   const updateRoute = (e) => {
     const coords = e.features[0].geometry.coordinates;
