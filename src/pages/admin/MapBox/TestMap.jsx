@@ -11,6 +11,7 @@ import RouteComponent from "../../../components/mapbox/RouteComponent";
 import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
 import { useQueryClient } from '@tanstack/react-query';
+import {useCreateLinkPath} from '../../../lib/hooks/useCreateLinkPath';
 
 
 const TestMap = () => {
@@ -19,10 +20,11 @@ const TestMap = () => {
   
   //const { data: pointsData, isLoading: isLoadingPoints, error: pointsError } = useGetEntity();
   const { data: routesData, isLoading: isLoadingRoutes, error: routesError } = useGetRoutes();
-  console.log("routesData",routesData)
+  //console.log("routesData",routesData)
   const createEntity = useCreateEntity();
   const deleteEntity = useDeleteEntity();
   const createLink = useCreateLink();
+  const createLinkPath = useCreateLinkPath();
 
 
   const [lng, setLng] = useState(27.618);
@@ -263,16 +265,46 @@ const TestMap = () => {
     await saveRouteToDatabase(matchedCoords); 
   };
 
+  // const saveRouteToDatabase = async (route) => {
+  //   // Implement the logic to save the route to your database here
+  //   await fetch('/api/save-route', {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //     body: JSON.stringify({ route }),
+  //   });
+  // };
+
   const saveRouteToDatabase = async (route) => {
-    // Implement the logic to save the route to your database here
-    await fetch('/api/save-route', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
+    // Convert matched route to the format required by the API
+    const routeData = {
+      number: 3, // Replace with appropriate number
+      linkId: 22, // Replace with appropriate linkId
+      stored: {
+        id: 32, // Replace with appropriate id
+        creator: 10, // Replace with appropriate creator id
+        active: false // Replace with appropriate active status
       },
-      body: JSON.stringify({ route }),
-    });
+      linkPoints: route.coordinates.map((coord, index) => ({
+        number: index + 1,
+        linkPathId: 31, // Replace with appropriate linkPathId
+        stored: {
+          id: null,
+          creator: 10, // Replace with appropriate creator id
+          active: true // Replace with appropriate active status
+        },
+        coordinates: {
+          x: coord[0],
+          y: coord[1]
+        }
+      }))
+    };
+
+    // Use the useCreateLinkPath hook to save the route
+    createLinkPath.mutate(routeData);
   };
+
 
   if (isLoading || isLoadingRoutes) {
     return <div>Loading...</div>;
