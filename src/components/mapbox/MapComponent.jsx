@@ -50,6 +50,7 @@ const MapComponent = ({
     drawRef.current = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
+        line_string: true,
         point: true,
         trash: true
       }
