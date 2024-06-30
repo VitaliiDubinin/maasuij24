@@ -21,13 +21,13 @@ const MapComponent = ({
   mapRef,
   drawRef,
   clonedPoint,
-  handleClonedPointUpdate
+  handleClonedPointUpdate,
+  routesData
 }) => {
   const queryClient = useQueryClient();
   const mapContainer = useRef(null);
   const updateEntity = useUpdateEntity();
   const clonedPointRef = useRef(clonedPoint);
-
 
   useEffect(() => {
     clonedPointRef.current = clonedPoint;
@@ -50,6 +50,7 @@ const MapComponent = ({
     drawRef.current = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
+        line_string: true,
         point: true,
         trash: true
       }
@@ -88,10 +89,25 @@ const MapComponent = ({
         }
       });
 
-
+      mapRef.current.addSource('routes', {
+        type: 'geojson',
+        data: routesData
+      });
+      mapRef.current.addLayer({
+        id: 'routes',
+        type: 'line',
+        source: 'routes',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#880000',
+          'line-width': 4
+        }
+      });
 
       mapRef.current.on('click', 'points', onPointClick);
-
 
       mapRef.current.on('mouseenter', 'points', () => {
         mapRef.current.getCanvas().style.cursor = 'pointer';
@@ -101,11 +117,11 @@ const MapComponent = ({
         mapRef.current.getCanvas().style.cursor = '';
       });
 
-      mapRef.current.on('mouseenter', 'lines', () => {
+      mapRef.current.on('mouseenter', 'routes', () => {
         mapRef.current.getCanvas().style.cursor = 'pointer';
       });
 
-      mapRef.current.on('mouseleave', 'lines', () => {
+      mapRef.current.on('mouseleave', 'routes', () => {
         mapRef.current.getCanvas().style.cursor = '';
       });
 
@@ -125,15 +141,17 @@ const MapComponent = ({
         });
       });
     });
-
-//  }, [lng, lat, zoom, onMove, pointsData, linesData, linksData, onDrawCreate, onDrawDelete, onPointClick, onLineClick]);
-  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick]);
+  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick, routesData]);
 
   useEffect(() => {
     if (mapRef.current && mapRef.current.getSource('points')) {
       mapRef.current.getSource('points').setData(pointsData);
     }
-  }, [pointsData]);
+    if (mapRef.current && mapRef.current.getSource('routes')) {
+      mapRef.current.getSource('routes').setData(routesData);
+      console.log('Updated route data:', routesData);
+    }
+  }, [pointsData, routesData]);
 
   const onClonedPointMove = (e) => {
     if (!clonedPointRef.current) return;
