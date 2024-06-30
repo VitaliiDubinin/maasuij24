@@ -323,6 +323,39 @@ const TestMap = () => {
     setClonedPoint(newClonedPoint);
   };
 
+  const updateRoute = (e) => {
+    const coords = e.features[0].geometry.coordinates;
+    console.log("coords", coords);
+    const profile = 'driving';
+    const newCoords = coords.map(coord => `${coord[0]},${coord[1]}`).join(';');
+    const radius = coords.map(() => 50);
+    getMatch(newCoords, radius, profile);
+  };
+
+  const getMatch = async (coordinates, radius, profile) => {
+    const radiuses = radius.join(';');
+    const query = await fetch(
+      `https://api.mapbox.com/matching/v5/mapbox/${profile}/${coordinates}?geometries=geojson&radiuses=${radiuses}&steps=true&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`,
+      { method: 'GET' }
+    );
+    const response = await query.json();
+    if (response.code !== 'Ok') {
+      alert(
+        `${response.code} - ${response.message}.\n\nFor more information: https://docs.mapbox.com/api/navigation/map-matching/#map-matching-api-errors`
+      );
+      return;
+    }
+    const matchedCoords = response.matchings[0].geometry;
+    console.log(matchedCoords);
+    draw.current.add({
+      type: 'Feature',
+      geometry: matchedCoords,
+      properties: {}
+    });
+  };
+
+
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
@@ -353,6 +386,7 @@ const TestMap = () => {
         clonedPoint={clonedPoint}
         handleClonedPointUpdate={handleClonedPointUpdate}
         // routesData={routesData}
+        updateRoute={updateRoute}
       />
       <PointsComponent mapRef={map} drawRef={draw} updatePoints={updatePoints} />
       {/* <RouteComponent mapRef={map} /> */}

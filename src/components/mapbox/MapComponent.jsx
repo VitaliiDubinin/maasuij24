@@ -23,6 +23,7 @@ const MapComponent = ({
   clonedPoint,
   handleClonedPointUpdate,
 //  routesData
+  updateRoute
 }) => {
   const queryClient = useQueryClient();
   const mapContainer = useRef(null);
@@ -128,6 +129,7 @@ const MapComponent = ({
       mapRef.current.on('move', onMove);
 
       mapRef.current.on('draw.create', onDrawCreate);
+      mapRef.current.on('draw.update', updateRoute); 
       mapRef.current.on('draw.delete', onDrawDelete);
 
       mapRef.current.on('mousedown', 'cloned-points', (e) => {
