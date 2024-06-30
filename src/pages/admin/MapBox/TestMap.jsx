@@ -49,8 +49,16 @@ const TestMap = () => {
       createLink.mutate(selectedPoints, {
         onSuccess: async () => {
           setIsLinkCreating(false);
+          const lineCoordinates = selectedPoints.map(point => point.coordinates);
+          draw.current.add({
+            type: 'Feature',
+            geometry: {
+              type: 'LineString',
+              coordinates: lineCoordinates
+            }
+          });
           setSelectedPoints([]);
-          createRoute(selectedPoints[0].coordinates, selectedPoints[1].coordinates);
+//          createRoute(selectedPoints[0].coordinates, selectedPoints[1].coordinates);
         },
         onError: (error) => {
           console.error("Link creation failed", error);
@@ -61,49 +69,49 @@ const TestMap = () => {
     }
   }, [selectedPoints, isLinkCreating, createLink]);
 
-  const createRoute = async (start, end, interval = 0.2) => {
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`;
+  // const createRoute = async (start, end, interval = 0.2) => {
+  //   const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?geometries=geojson&access_token=${process.env.REACT_APP_MAPBOX_ACCESS_TOKEN}`;
     
-    try {
-      const response = await fetch(url);
-      const data = await response.json();
-      const route = data.routes[0].geometry;
-      const resampledRoute = resampleRoute(route, interval);
+  //   try {
+  //     const response = await fetch(url);
+  //     const data = await response.json();
+  //     const route = data.routes[0].geometry;
+  //     const resampledRoute = resampleRoute(route, interval);
 
 
-      setRoutesData({
-        type: 'FeatureCollection',
-        features: [{
-          type: 'Feature',
-       //   geometry: route,
-          geometry: resampledRoute,
-          properties: {}
-        }]
-      });
+  //     setRoutesData({
+  //       type: 'FeatureCollection',
+  //       features: [{
+  //         type: 'Feature',
+  //      //   geometry: route,
+  //         geometry: resampledRoute,
+  //         properties: {}
+  //       }]
+  //     });
 
-      console.log('Fetched route data:', route);
-    } catch (error) {
-      console.error("Error fetching route:", error);
-    }
-  };
+  //     console.log('Fetched route data:', route);
+  //   } catch (error) {
+  //     console.error("Error fetching route:", error);
+  //   }
+  // };
 
-  const resampleRoute = (route, interval) => {
-    const line = lineString(route.coordinates);
-    const lineLength = length(line, { units: 'kilometers' });
+  // const resampleRoute = (route, interval) => {
+  //   const line = lineString(route.coordinates);
+  //   const lineLength = length(line, { units: 'kilometers' });
   
-    const numPoints = Math.ceil(lineLength / interval);
-    const resampledCoordinates = [];
+  //   const numPoints = Math.ceil(lineLength / interval);
+  //   const resampledCoordinates = [];
   
-    for (let i = 0; i <= numPoints; i++) {
-      const segment = along(line, i * interval, { units: 'kilometers' });
-      resampledCoordinates.push(segment.geometry.coordinates);
-    }
+  //   for (let i = 0; i <= numPoints; i++) {
+  //     const segment = along(line, i * interval, { units: 'kilometers' });
+  //     resampledCoordinates.push(segment.geometry.coordinates);
+  //   }
   
-    return {
-      type: 'LineString',
-      coordinates: resampledCoordinates
-    };
-  };
+  //   return {
+  //     type: 'LineString',
+  //     coordinates: resampledCoordinates
+  //   };
+  // };
 
   const onMove = () => {
     if (map.current) {
@@ -116,35 +124,99 @@ const TestMap = () => {
     }
   };
 
+  // const onDrawCreate = (e) => {
+  //   const newPoint = e.features[0];
+  //   const pointName = prompt("Enter a name for the new point:", "New Point");
+
+  //   if (pointName) {
+  //     const newSPoint = {
+  //       persistent: {
+  //         id: null,
+  //         name: pointName,
+  //         description: null,
+  //         creator: 133,
+  //         locales: [],
+  //         active: null
+  //       },
+  //       number: 868,
+  //       point: {
+  //         x: newPoint.geometry.coordinates[0],
+  //         y: newPoint.geometry.coordinates[1]
+  //       }
+  //     };
+
+  //     createEntity.mutate(newSPoint, {
+  //       onSuccess: async () => {
+  //         const updatedPointsData = await fetchAndUpdateEntities(queryClient);
+  //         updatePoints(updatedPointsData);
+  //       }
+  //     });
+  //   } else {
+  //     draw.current.delete(newPoint.id);
+  //   }
+  // };
+
   const onDrawCreate = (e) => {
-    const newPoint = e.features[0];
-    const pointName = prompt("Enter a name for the new point:", "New Point");
-
-    if (pointName) {
-      const newSPoint = {
-        persistent: {
-          id: null,
-          name: pointName,
-          description: null,
-          creator: 133,
-          locales: [],
-          active: null
-        },
-        number: 868,
-        point: {
-          x: newPoint.geometry.coordinates[0],
-          y: newPoint.geometry.coordinates[1]
-        }
-      };
-
-      createEntity.mutate(newSPoint, {
-        onSuccess: async () => {
-          const updatedPointsData = await fetchAndUpdateEntities(queryClient);
-          updatePoints(updatedPointsData);
-        }
-      });
-    } else {
-      draw.current.delete(newPoint.id);
+    const newFeature = e.features[0];
+    const geometryType = newFeature.geometry.type;
+  
+    if (geometryType === 'Point') {
+      const pointName = prompt("Enter a name for the new point:", "New Point");
+  
+      if (pointName) {
+        const newSPoint = {
+          persistent: {
+            id: null,
+            name: pointName,
+            description: null,
+            creator: 133,
+            locales: [],
+            active: null
+          },
+          number: 868,
+          point: {
+            x: newFeature.geometry.coordinates[0],
+            y: newFeature.geometry.coordinates[1]
+          }
+        };
+  
+        createEntity.mutate(newSPoint, {
+          onSuccess: async () => {
+            const updatedPointsData = await fetchAndUpdateEntities(queryClient);
+            updatePoints(updatedPointsData);
+          }
+        });
+      } else {
+        draw.current.delete(newFeature.id);
+      }
+    // } else if (geometryType === 'LineString') {
+    //   const lineName = prompt("Enter a name for the new line:", "New Line");
+  
+    //   if (lineName) {
+    //     const newSLine = {
+    //       persistent: {
+    //         id: null,
+    //         name: lineName,
+    //         description: null,
+    //         creator: 133,
+    //         locales: [],
+    //         active: null
+    //       },
+    //       number: 868,
+    //       line: {
+    //         coordinates: newFeature.geometry.coordinates
+    //       }
+    //     };
+  
+    //     createEntity.mutate(newSLine, {
+    //       onSuccess: async () => {
+    //         const updatedLinesData = await fetchAndUpdateEntities(queryClient);
+    //         updatePoints(updatedLinesData);
+    //       }
+    //     });
+    //   } else {
+    //     draw.current.delete(newFeature.id);
+    //   }
     }
   };
 
@@ -280,10 +352,10 @@ const TestMap = () => {
         drawRef={draw}
         clonedPoint={clonedPoint}
         handleClonedPointUpdate={handleClonedPointUpdate}
-        routesData={routesData}
+        // routesData={routesData}
       />
       <PointsComponent mapRef={map} drawRef={draw} updatePoints={updatePoints} />
-      <RouteComponent mapRef={map} />
+      {/* <RouteComponent mapRef={map} /> */}
     </div>
   );
 };

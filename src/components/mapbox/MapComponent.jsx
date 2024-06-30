@@ -22,7 +22,7 @@ const MapComponent = ({
   drawRef,
   clonedPoint,
   handleClonedPointUpdate,
-  routesData
+//  routesData
 }) => {
   const queryClient = useQueryClient();
   const mapContainer = useRef(null);
@@ -50,7 +50,7 @@ const MapComponent = ({
     drawRef.current = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
-        line_string: true,
+    //    line_string: true,
         point: true,
         trash: true
       }
@@ -89,23 +89,23 @@ const MapComponent = ({
         }
       });
 
-      mapRef.current.addSource('routes', {
-        type: 'geojson',
-        data: routesData
-      });
-      mapRef.current.addLayer({
-        id: 'routes',
-        type: 'line',
-        source: 'routes',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
-        paint: {
-          'line-color': '#880000',
-          'line-width': 4
-        }
-      });
+      // mapRef.current.addSource('routes', {
+      //   type: 'geojson',
+      //   data: routesData
+      // });
+      // mapRef.current.addLayer({
+      //   id: 'routes',
+      //   type: 'line',
+      //   source: 'routes',
+      //   layout: {
+      //     'line-join': 'round',
+      //     'line-cap': 'round'
+      //   },
+      //   paint: {
+      //     'line-color': '#880000',
+      //     'line-width': 4
+      //   }
+      // });
 
       mapRef.current.on('click', 'points', onPointClick);
 
@@ -117,13 +117,13 @@ const MapComponent = ({
         mapRef.current.getCanvas().style.cursor = '';
       });
 
-      mapRef.current.on('mouseenter', 'routes', () => {
-        mapRef.current.getCanvas().style.cursor = 'pointer';
-      });
+      // mapRef.current.on('mouseenter', 'routes', () => {
+      //   mapRef.current.getCanvas().style.cursor = 'pointer';
+      // });
 
-      mapRef.current.on('mouseleave', 'routes', () => {
-        mapRef.current.getCanvas().style.cursor = '';
-      });
+      // mapRef.current.on('mouseleave', 'routes', () => {
+      //   mapRef.current.getCanvas().style.cursor = '';
+      // });
 
       mapRef.current.on('move', onMove);
 
@@ -141,17 +141,19 @@ const MapComponent = ({
         });
       });
     });
-  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick, routesData]);
+//  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick, routesData]);
+  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick]);
 
   useEffect(() => {
     if (mapRef.current && mapRef.current.getSource('points')) {
       mapRef.current.getSource('points').setData(pointsData);
     }
-    if (mapRef.current && mapRef.current.getSource('routes')) {
-      mapRef.current.getSource('routes').setData(routesData);
-      console.log('Updated route data:', routesData);
-    }
-  }, [pointsData, routesData]);
+    // if (mapRef.current && mapRef.current.getSource('routes')) {
+    //   mapRef.current.getSource('routes').setData(routesData);
+    //   console.log('Updated route data:', routesData);
+    // }
+//  }, [pointsData, routesData]);
+  }, [pointsData]);
 
   const onClonedPointMove = (e) => {
     if (!clonedPointRef.current) return;
