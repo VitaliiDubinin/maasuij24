@@ -28,10 +28,31 @@ export const createEntityForm = async (newent, enroute) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error updating stop point:", error);
+    console.error(`Error during creating Entity ${enroute}:`, error);
     throw error;
   }
 };
+
+// export const createEntityForm = async (newent, enroute) => {
+//   try {
+//     const requestBody = JSON.stringify(newent);
+//     const headers = {
+//       "Content-Type": "application/json",
+//       api_key: apiKey,
+//     };
+
+//     const response = await axios.post(`${baseUrl}${enroute}`, requestBody, { headers });
+//     return response.data;
+//   } catch (error) {
+//     if (error.response && error.response.status === 409) {
+//       console.log("409 Conflict, treating as normal response:", error.response.data.message);
+//       return error.response.data; // Return the response data instead of throwing the error
+//     } else {
+//       console.error("Error creating entity:", error);
+//       throw error; // Re-throw the error if it's not a 409
+//     }
+//   }
+// };
 
 export async function updateEntityForm(values, enroute) {
   try {

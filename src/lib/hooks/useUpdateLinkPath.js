@@ -31,10 +31,10 @@ const createLinkPath = async (data) => {
   console.log(data)
   // const response = await axios.post('/api/link-path/edit', data);
 
-//  const enroute = `/link-path/edit`;
-  const enroute = `/link-path/create`;
- // const response = await updateEntityForm(data, enroute);
-  const response = await createEntityForm(data, enroute);
+  const enroute = `/link-path/edit`;
+//  const enroute = `/link-path/create`;
+ const response = await updateEntityForm(data, enroute);
+//  const response = await createEntityForm(data, enroute);
 
   return response;
 };

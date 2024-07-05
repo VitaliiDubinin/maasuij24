@@ -41,7 +41,7 @@ const essentailNav = {
 
   MapBox: ['', 'mbox'],
   Links: ['', 'links'],
-  'Link Pathes': ['', 'linkpathes'],
+  'Link Paths': ['', 'linkpaths'],
   'Link Sequences': ['', 'linksequences'],
   Stops: ['', 'stops'],
   'Stop Points': ['', 'spoints'],

@@ -151,10 +151,11 @@ const MapComponent = ({
   useEffect(() => {
     if (mapRef.current && mapRef.current.getSource('points')) {
       mapRef.current.getSource('points').setData(pointsData);
+      console.log('Updated poits data:', pointsData);
     }
     if (mapRef.current && mapRef.current.getSource('routes')) {
       mapRef.current.getSource('routes').setData(routesData);
-      console.log('Updated route data:', routesData);
+      console.log('Updated routes data:', routesData);
     }
   }, [pointsData, routesData]);
  // }, [pointsData]);
@@ -163,7 +164,7 @@ const MapComponent = ({
     if (!clonedPointRef.current) return;
 
     const newCoordinates = [e.lngLat.lng, e.lngLat.lat];
-
+//console.log("moved point",e)
     const updatedClonedPoint = {
       ...clonedPointRef.current,
       geometry: {

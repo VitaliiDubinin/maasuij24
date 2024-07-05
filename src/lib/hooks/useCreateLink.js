@@ -12,7 +12,8 @@ const useCreateLink = () => {
        const enroute = `/link/create`;
        const reqbody = {
     //    number: 46,
-        number: parseInt(number, 10),
+        //number: parseInt(number, 10),
+        number: null,
         startPointId: entity[0].id.slice(5),
         finishPointId: entity[1].id.slice(5),
         productive: true,
@@ -26,7 +27,21 @@ const useCreateLink = () => {
 //    console.log(reqbody)
 
        const response = await createEntityForm(reqbody, enroute);
+       console.log("created Link ID",response)
       return response;
+      // try {
+      //   const response = await createEntityForm(reqbody, enroute);
+      //   console.log("created Link ID", response);
+      //   return response;
+      // } catch (error) {
+      //   if (error.response && error.response.status === 409) {
+      //     console.log("409 Conflict, treating as normal response:", error.response.data.message);
+      //     return error.response;
+      //   } else {
+      //     throw error;
+      //   }
+      // }
+
     },
     onSuccess: async () => {
      console.log("useCreateLink success, fetching new data");

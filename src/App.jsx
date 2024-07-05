@@ -8,7 +8,7 @@ import StopPoints from './pages/admin/StopPoints/StopPoints.jsx';
 import Links from './pages/admin/Links/Links.jsx';
 import RouteManagement from './pages/admin/RouteManagement/RouteManagement.jsx';
 import RouteVariant from './pages/admin/RouteVariant/RouteVariant.jsx';
-import LinkPathes from './pages/admin/LinkPathes/LinkPathes.jsx';
+import LinkPaths from './pages/admin/LinkPaths/LinkPaths.jsx';
 import LinkSequences from './pages/admin/LinkSequences/LinkSequences.jsx'
 import Leafletwindow from './components/leafmap/Leafletwindow.js';
 import ColButGroup from './components/button/ColButGroup.js';
@@ -82,7 +82,7 @@ function App() {
             <Route path="linksequences" element={<LinkSequences />} />
             <Route path="routes" element={<RouteManagement />} />
             <Route path="routevariants" element={<RouteVariant />} />
-            <Route path="linkpathes" element={<LinkPathes />} />
+            <Route path="linkpaths" element={<LinkPaths />} />
             <Route path="*" element={<Navigate to="home" replace />} />
           </Route>
         </Routes>
