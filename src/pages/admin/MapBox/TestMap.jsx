@@ -6,13 +6,11 @@ import useDeleteEntity from '../../../lib/hooks/useDeleteEntity';
 import useCreateLink from '../../../lib/hooks/useCreateLink';
 import { fetchAndUpdateEntities } from '../../../lib/hooks/fetchAndUpdateEntities';
 import MapComponent from "../../../components/mapbox/MapComponent";
-import PointsComponent from "../../../components/mapbox/PointsComponent";
-import RouteComponent from "../../../components/mapbox/RouteComponent";
 import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
 import { useQueryClient } from '@tanstack/react-query';
 import {useCreateLinkPath} from '../../../lib/hooks/useCreateLinkPath';
-import {useUpdateLinkPath} from '../../../lib/hooks/useUpdateLinkPath';
+
 
 
 const TestMap = () => {
@@ -21,7 +19,7 @@ const TestMap = () => {
   
   //const { data: pointsData, isLoading: isLoadingPoints, error: pointsError } = useGetEntity();
   const { data: routesData, isLoading: isLoadingRoutes, error: routesError } = useGetRoutes();
-  console.log("routesData",routesData)
+ // console.log("routesData",routesData)
   const createEntity = useCreateEntity();
   const deleteEntity = useDeleteEntity();
   const createLink = useCreateLink();
@@ -55,7 +53,7 @@ const TestMap = () => {
       setIsLinkCreating(true);
       createLink.mutate(selectedPoints, {
         onSuccess: async (l) => {
-          console.log(l.stored.id)
+ //         console.log(l.stored.id)
           const linkid =l.stored.id;
           setIsLinkCreating(false);
           const lineCoordinates = selectedPoints.map(point => point.coordinates);
@@ -74,11 +72,11 @@ const TestMap = () => {
     // else if (selectedPoints.length === 1 && !isLinkCreating) {
     //   console.log("we should update LinkPath")
     // }
-    else {
-      updateRoute(selectedPoints);
-      console.log("we should update LinkPath")
-    }
-  }, [selectedPoints, isLinkCreating, createLink]);
+  //   else {
+  //     updateRoute(selectedPoints);
+  //     console.log("we should update LinkPath")
+  //   }
+   }, [selectedPoints, isLinkCreating, createLink]);
 
   
 
@@ -202,7 +200,7 @@ const TestMap = () => {
 
     setSelectedPoints((prevSelectedPoints) => {
       if (prevSelectedPoints.length === 0) {
-        console.log("selected first poin", pointId)
+//        console.log("selected first poin", pointId)
         return [{ id: pointId, coordinates }];
       } else if (prevSelectedPoints.length === 1 && prevSelectedPoints[0].id !== pointId) {
         return [...prevSelectedPoints, { id: pointId, coordinates }];
@@ -278,62 +276,22 @@ const TestMap = () => {
     await saveRouteToDatabase(matchedCoords,linkid); 
   };
 
-  // const saveRouteToDatabase = async (route) => {
-  //   // Implement the logic to save the route to your database here
-  //   await fetch('/api/save-route', {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     body: JSON.stringify({ route }),
-  //   });
-  // };
-
-  // const saveRouteToDatabase = async (route,linkid) => {
-  //   // Convert matched route to the format required by the API
-  //   const routeData = {
-  //     number: null, // Replace with appropriate number
-  //     //linkId: 123,
-  //     linkId: linkid, // Replace with appropriate linkId
-  //     stored: {
-  //       id: null, // Replace with appropriate id
-  //       creator: 10, // Replace with appropriate creator id
-  //       active: false // Replace with appropriate active status
-  //     },
-  //     linkPoints: route.coordinates.map((coord, index) => ({
-  //       number: index + 1,
-  //       //linkPathId: null, // Replace with appropriate linkPathId
-  //       stored: {
-  //         id: null,
-  //         creator: 138, // Replace with appropriate creator id
-  //         active: null // Replace with appropriate active status
-  //       },
-  //       coordinates: {
-  //         x: coord[0],
-  //         y: coord[1]
-  //       }
-  //     }))
-  //   };
-
-  //   // Use the useCreateLinkPath hook to save the route
-  //   createLinkPath.mutate(routeData);
-  // };
   const saveRouteToDatabase = async (route, linkid) => {
     // Convert matched route to the format required by the API
     const routeData = {
-      number: null, // Replace with appropriate number
-      linkId: linkid, // Replace with appropriate linkId
+      number: null, 
+      linkId: linkid, 
       stored: {
-        id: null, // Replace with appropriate id
-        creator: 10, // Replace with appropriate creator id
-        active: false // Replace with appropriate active status
+        id: null, 
+        creator: 10, 
+        active: false 
       },
       linkPoints: route.coordinates.slice(1, -1).map((coord, index) => ({
         number: index + 1,
         stored: {
           id: null,
-          creator: 138, // Replace with appropriate creator id
-          active: null // Replace with appropriate active status
+          creator: 138,
+          active: null 
         },
         coordinates: {
           x: coord[0],
@@ -342,7 +300,6 @@ const TestMap = () => {
       }))
     };
   
-    // Use the useCreateLinkPath hook to save the route
     createLinkPath.mutate(routeData);
   };
 
@@ -379,8 +336,6 @@ const TestMap = () => {
         routesData={routesData}
         updateRoute={updateRoute}
       />
-      <PointsComponent mapRef={map} drawRef={draw} updatePoints={updatePoints} />
-      {/* <RouteComponent mapRef={map} /> */}
     </div>
   );
 };

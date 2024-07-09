@@ -84,7 +84,7 @@ export async function deleteEntity(entityId, enroute) {
     const response = await axios.delete(`${baseUrl}${enroute}${entityId}`, {
       headers,
     });
-    console.log("DELETE Request Response:", response.data);
+//    console.log("DELETE Request Response:", response.data);
     return response.data;
   } catch (error) {
     // console.error('Error updating stop point:', error);
