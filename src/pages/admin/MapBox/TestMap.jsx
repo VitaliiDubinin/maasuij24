@@ -171,6 +171,7 @@ const TestMap = () => {
     const pointCreator = e.features[0].properties.creator;
 
     if (clonedPoint) {
+      console.log(clonedPoint)
       map.current.getSource('cloned-points').setData({
         type: 'FeatureCollection',
         features: []
@@ -221,6 +222,10 @@ const TestMap = () => {
       );
     }
   };
+
+  useEffect(() => {
+    console.log("clonedPoint updated", clonedPoint);
+  }, [clonedPoint]);
 
   const deleteSelectedPoints = () => {
     selectedPoints.forEach(point => {
