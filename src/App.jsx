@@ -25,6 +25,8 @@ import {
   // drawer_icon_color,
 } from './config/themeConfig.js';
 import DataTable from './pages/admin/DataTable/DataTable.js';
+import { Provider } from 'react-redux';
+import store from './store';
 
 
 function App() {
@@ -63,6 +65,7 @@ function App() {
     },
   });
   return (
+    <Provider store={store}>
     <QueryClientProvider client={client}>
     <ThemeProvider theme={theme}>
       <Router>
@@ -89,6 +92,7 @@ function App() {
       </Router>
     </ThemeProvider>
     </QueryClientProvider>
+    </Provider>
   );
 }
 

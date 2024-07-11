@@ -5,6 +5,8 @@ import useUpdateEntity from '../../lib/hooks/useUpdateEntity';
 import { fetchAndUpdateEntities } from '../../lib/hooks/fetchAndUpdateEntities';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { useQueryClient } from '@tanstack/react-query';
+import { useSelector, useDispatch } from 'react-redux';
+import { clearSelection, selectPoint,updateClonedPoint } from '../../mapSlice';
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
 
@@ -16,11 +18,9 @@ const MapComponent = ({
   pointsData,
   onDrawCreate,
   onDrawDelete,
-  onPointClick,
   updatePoints,
   mapRef,
   drawRef,
-  clonedPoint,
   handleClonedPointUpdate,
   routesData,
   updateRoute
@@ -28,11 +28,113 @@ const MapComponent = ({
   const queryClient = useQueryClient();
   const mapContainer = useRef(null);
   const updateEntity = useUpdateEntity();
-  const clonedPointRef = useRef(clonedPoint);
+  const dispatch = useDispatch();
 
-  useEffect(() => {
-    clonedPointRef.current = clonedPoint;
-  }, [clonedPoint]);
+  const clonedPoint = useSelector(state => state.map.clonedPoint);
+
+ 
+  const onPointClick = (e) => {
+    const feature = e.features[0];
+  
+    const newClonedPoint = {
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: feature.geometry.coordinates.slice()
+      },
+      properties: {
+        id: feature.properties.id,
+        name: feature.properties.name,
+        creator: feature.properties.creator
+      }
+    };
+  
+    if (clonedPoint && clonedPoint.properties.id === feature.properties.id) {
+      // Deselect the point if it's already selected
+      dispatch(clearSelection());
+    } else {
+      // Select the point and set it as the cloned point
+      dispatch(selectPoint({ point: newClonedPoint }));
+    }
+  
+    if (mapRef.current) {
+      const isSelected = mapRef.current.getFeatureState({
+        source: 'points',
+        id: feature.properties.id
+      }).selected;
+  
+      mapRef.current.setFeatureState(
+        { source: 'points', id: feature.properties.id },
+        { selected: !isSelected }
+      );
+    }
+  };
+  
+  console.log("clonedPoint",clonedPoint)
+  
+  const onClonedPointMove = (e) => {
+    console.log("from onClonedPointMove 1",e)
+    console.log("from onClonedPointMove 11",clonedPoint)
+
+    if (!clonedPoint) return;
+
+    console.log("from onClonedPointMove 2")
+
+    const newCoordinates = [e.lngLat.lng, e.lngLat.lat];
+
+    const updatedClonedPoint = {
+      ...clonedPoint,
+      geometry: {
+        ...clonedPoint.geometry,
+        coordinates: newCoordinates
+      }
+    };
+    console.log(updatedClonedPoint)
+    mapRef.current.getSource('cloned-points').setData({
+      type: 'FeatureCollection',
+      features: [updatedClonedPoint]
+    });
+
+    dispatch(updateClonedPoint({ clonedPoint: updatedClonedPoint }));
+  };
+
+  const onClonedPointDrop = async () => {
+    if (!clonedPoint) return;
+
+    const updatedCoordinates = clonedPoint.geometry.coordinates;
+    const originalPointId = clonedPoint.properties.id;
+
+    const originalPoint = pointsData.features.find(point => point.properties.id === originalPointId);
+    if (!originalPoint) return;
+
+    const updatedEntity = {
+      persistent: {
+        id: originalPoint.properties.id,
+        creator: originalPoint.properties.creator
+      },
+      point: {
+        x: updatedCoordinates[0],
+        y: updatedCoordinates[1]
+      }
+    };
+
+    updateEntity.mutate(updatedEntity, {
+      onSuccess: async () => {
+        const updatedPointsData = await fetchAndUpdateEntities(queryClient);
+        updatePoints(updatedPointsData);
+        if (mapRef.current.getSource('cloned-points')) {
+          mapRef.current.getSource('cloned-points').setData({
+            type: 'FeatureCollection',
+            features: []
+          });
+        }
+        dispatch(clearSelection());
+      },
+      onError: (error) => {
+        console.error("Error updating point:", error);
+      }
+    });
+  };
 
   useEffect(() => {
     if (mapRef.current) return; // initialize map only once
@@ -51,7 +153,6 @@ const MapComponent = ({
     drawRef.current = new MapboxDraw({
       displayControlsDefault: false,
       controls: {
-    //    line_string: true,
         point: true,
         trash: true
       }
@@ -87,28 +188,29 @@ const MapComponent = ({
         paint: {
           'circle-radius': 10,
           'circle-color': '#00FF00' // green color for cloned points
-        }
+        },
+        before: 'points'
       });
 
       if (routesData) {
-      mapRef.current.addSource('routes', {
-        type: 'geojson',
-        data: routesData
-      });
-      mapRef.current.addLayer({
-        id: 'routes',
-        type: 'line',
-        source: 'routes',
-        layout: {
-          'line-join': 'round',
-          'line-cap': 'round'
-        },
-        paint: {
-          'line-color': '#880000',
-          'line-width': 4
-        }
-      });
-    }
+        mapRef.current.addSource('routes', {
+          type: 'geojson',
+          data: routesData
+        });
+        mapRef.current.addLayer({
+          id: 'routes',
+          type: 'line',
+          source: 'routes',
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#880000',
+            'line-width': 4
+          }
+        });
+      }
 
       mapRef.current.on('click', 'points', onPointClick);
 
@@ -120,18 +222,10 @@ const MapComponent = ({
         mapRef.current.getCanvas().style.cursor = '';
       });
 
-      // mapRef.current.on('mouseenter', 'routes', () => {
-      //   mapRef.current.getCanvas().style.cursor = 'pointer';
-      // });
-
-      // mapRef.current.on('mouseleave', 'routes', () => {
-      //   mapRef.current.getCanvas().style.cursor = '';
-      // });
-
       mapRef.current.on('move', onMove);
 
       mapRef.current.on('draw.create', onDrawCreate);
-      mapRef.current.on('draw.update', updateRoute); 
+      mapRef.current.on('draw.update', updateRoute);
       mapRef.current.on('draw.delete', onDrawDelete);
 
       mapRef.current.on('mousedown', 'cloned-points', (e) => {
@@ -145,75 +239,37 @@ const MapComponent = ({
         });
       });
     });
-  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick, routesData]);
-//  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, onPointClick]);
+  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, routesData]);
 
   useEffect(() => {
     if (mapRef.current && mapRef.current.getSource('points')) {
       mapRef.current.getSource('points').setData(pointsData);
-//      console.log('Updated poits data:', pointsData);
     }
     if (mapRef.current && mapRef.current.getSource('routes')) {
       mapRef.current.getSource('routes').setData(routesData);
-//      console.log('Updated routes data:', routesData);
     }
   }, [pointsData, routesData]);
- // }, [pointsData]);
 
-  const onClonedPointMove = (e) => {
-    if (!clonedPointRef.current) return;
+  useEffect(() => {
+    if (!mapRef.current || !mapRef.current.getSource('cloned-points')) return;
 
-    const newCoordinates = [e.lngLat.lng, e.lngLat.lat];
-//console.log("moved point",e)
-    const updatedClonedPoint = {
-      ...clonedPointRef.current,
-      geometry: {
-        ...clonedPointRef.current.geometry,
-        coordinates: newCoordinates
-      }
-    };
+    if (clonedPoint) {
+      mapRef.current.getSource('cloned-points').setData({
+        type: 'FeatureCollection',
+        features: [clonedPoint]
+      });
+      console.log("cloned points should be visible", clonedPoint);
+    } else {
+      mapRef.current.getSource('cloned-points').setData({
+        type: 'FeatureCollection',
+        features: []
+      });
+      console.log("cloned points should be hidden");
+    }
+  }, [clonedPoint]);
 
-    mapRef.current.getSource('cloned-points').setData({
-      type: 'FeatureCollection',
-      features: [updatedClonedPoint]
-    });
 
-    handleClonedPointUpdate(updatedClonedPoint);
-  };
 
-  const onClonedPointDrop = async () => {
-    if (!clonedPointRef.current) return;
-
-    const updatedCoordinates = clonedPointRef.current.geometry.coordinates;
-    const originalPointId = clonedPointRef.current.properties.id;
-
-    const originalPoint = pointsData.features.find(point => point.properties.id === originalPointId);
-    const updatedEntity = {
-      persistent: {
-        id: originalPoint.properties.id,
-        creator: originalPoint.properties.creator
-      },
-      point: {
-        x: updatedCoordinates[0],
-        y: updatedCoordinates[1]
-      }
-    };
-
-    updateEntity.mutate(updatedEntity, {
-      onSuccess: async () => {
-        const updatedPointsData = await fetchAndUpdateEntities(queryClient);
-        updatePoints(updatedPointsData);
-        mapRef.current.getSource('cloned-points').setData({
-          type: 'FeatureCollection',
-          features: []
-        });
-        handleClonedPointUpdate(null);
-      },
-      onError: (error) => {
-        console.error("Error updating point:", error);
-      }
-    });
-  };
 
   return <div ref={mapContainer} className="map-container" style={{ width: '80%', height: '600px' }} />;
 };
