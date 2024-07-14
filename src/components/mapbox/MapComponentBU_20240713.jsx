@@ -34,15 +34,13 @@ const MapComponent = ({
   const { onPointClick, onClonedPointMove, onClonedPointDrop } = useMapHandlers(mapRef, queryClient, updateEntity, updatePoints);
   const dispatch = useDispatch();
 
-
   const clonedPoint = useSelector(state => state.map.clonedPoint);
-  const selectedPoints = useSelector(state => state.map.selectedPoints);
 
-  const movedPointRef = useRef(clonedPoint); 
+ 
 
 
   useEffect(() => {
-//    console.log(clonedPoint)
+    console.log(clonedPoint)
     if (mapRef.current) return; // initialize map only once
     mapRef.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -64,6 +62,102 @@ const MapComponent = ({
       }
     });
     mapRef.current.addControl(drawRef.current);
+
+    // const onPointClick = (e) => {
+    //   console.log(clonedPoint)
+    //   const feature = e.features[0];
+
+    //   const newClonedPoint = {
+    //     type: 'Feature',
+    //     geometry: {
+    //       type: 'Point',
+    //       coordinates: feature.geometry.coordinates.slice()
+    //     },
+    //     properties: {
+    //       id: feature.properties.id,
+    //       name: feature.properties.name,
+    //       creator: feature.properties.creator
+    //     }
+    //   };
+
+    //   if (clonedPoint && clonedPoint.properties.id === feature.properties.id) {
+    //     dispatch(clearSelection());
+    //   } else {
+    //     dispatch(selectPoint({ point: newClonedPoint }));
+    //   }
+
+    //   if (mapRef.current) {
+    //     const isSelected = mapRef.current.getFeatureState({
+    //       source: 'points',
+    //       id: feature.properties.id
+    //     }).selected;
+
+    //     mapRef.current.setFeatureState(
+    //       { source: 'points', id: feature.properties.id },
+    //       { selected: !isSelected }
+    //     );
+    //   }
+    // };
+
+    // const onClonedPointMove = (e) => {
+    //   if (!clonedPoint) return;
+
+    //   const newCoordinates = [e.lngLat.lng, e.lngLat.lat];
+
+    //   const updatedClonedPoint = {
+    //     ...clonedPoint,
+    //     geometry: {
+    //       ...clonedPoint.geometry,
+    //       coordinates: newCoordinates
+    //     }
+    //   };
+
+    //   mapRef.current.getSource('cloned-points').setData({
+    //     type: 'FeatureCollection',
+    //     features: [updatedClonedPoint]
+    //   });
+
+    //   dispatch(updateClonedPoint({ clonedPoint: updatedClonedPoint }));
+    // };
+
+    // const onClonedPointDrop = async () => {
+    //   if (!clonedPoint) return;
+
+    //   const updatedCoordinates = clonedPoint.geometry.coordinates;
+    //   const originalPointId = clonedPoint.properties.id;
+
+    //   const originalPoint = pointsData.features.find(point => point.properties.id === originalPointId);
+    //   if (!originalPoint) return;
+
+    //   const updatedEntity = {
+    //     persistent: {
+    //       id: originalPoint.properties.id,
+    //       creator: originalPoint.properties.creator
+    //     },
+    //     point: {
+    //       x: updatedCoordinates[0],
+    //       y: updatedCoordinates[1]
+    //     }
+    //   };
+
+    //   updateEntity.mutate(updatedEntity, {
+    //     onSuccess: async () => {
+    //       const updatedPointsData = await fetchAndUpdateEntities(queryClient);
+    //       updatePoints(updatedPointsData);
+    //       if (mapRef.current.getSource('cloned-points')) {
+    //         mapRef.current.getSource('cloned-points').setData({
+    //           type: 'FeatureCollection',
+    //           features: []
+    //         });
+    //       }
+    //       dispatch(clearSelection());
+    //     },
+    //     onError: (error) => {
+    //       console.error("Error updating point:", error);
+    //     }
+    //   });
+    // };
+
 
     mapRef.current.on('load', () => {
       mapRef.current.addSource('points', {
@@ -134,69 +228,20 @@ const MapComponent = ({
       mapRef.current.on('draw.update', updateRoute);
       mapRef.current.on('draw.delete', onDrawDelete);
 
- 
-      // mapRef.current.on('mousedown', 'cloned-points', (e) => {
-      //   console.log(e)
-      //   console.log("points choosen", clonedPoint)
-      //   e.preventDefault();
-      //   mapRef.current.getCanvas().style.cursor = 'grabbing';
-      //   mapRef.current.on('mousemove', onClonedPointMove);
-      //   mapRef.current.once('mouseup', () => {
-      //     mapRef.current.getCanvas().style.cursor = '';
-      //     mapRef.current.off('mousemove', onClonedPointMove);
-      //     onClonedPointDrop();
-      //   });
-      // });
+      mapRef.current.on('mousedown', 'cloned-points', (e) => {
+        console.log(e)
+        console.log("points choosen", clonedPoint)
+        e.preventDefault();
+        mapRef.current.getCanvas().style.cursor = 'grabbing';
+        mapRef.current.on('mousemove', onClonedPointMove);
+        mapRef.current.once('mouseup', () => {
+          mapRef.current.getCanvas().style.cursor = '';
+          mapRef.current.off('mousemove', onClonedPointMove);
+          onClonedPointDrop();
+        });
+      });
     });
-  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, routesData, onPointClick, updateRoute]);
-
-
-
-  useEffect(() => {
-    if (!mapRef.current || !mapRef.current.getSource('cloned-points')) return;
-
-    if (clonedPoint) {
-      mapRef.current.getSource('cloned-points').setData({
-        type: 'FeatureCollection',
-        features: [clonedPoint]
-      });
-  //    console.log("cloned points should be visible", clonedPoint);
-    } else {
-      mapRef.current.getSource('cloned-points').setData({
-        type: 'FeatureCollection',
-        features: []
-      });
-  //    console.log("cloned points should be hidden");
-    }
-  }, [clonedPoint]);
-
-  useEffect(() => {
-    if (!mapRef.current) return;
-
-    const handleMouseDown = (e) => {
-//      console.log(e);
-//      console.log("points chosen", clonedPoint);
-      e.preventDefault();
-      mapRef.current.getCanvas().style.cursor = 'grabbing';
-      mapRef.current.on('mousemove', onClonedPointMove);
-      mapRef.current.once('mouseup', () => {
-        mapRef.current.getCanvas().style.cursor = '';
-        mapRef.current.off('mousemove', onClonedPointMove);
-        console.log("clonedPoint", clonedPoint);
-//        movedPointRef.current = clonedPoint;
-       // onClonedPointDrop(clonedPoint, selectedPoints);
-        onClonedPointDrop();
-      });
-    };
-
-    mapRef.current.on('mousedown', 'cloned-points', handleMouseDown);
-
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.off('mousedown', 'cloned-points', handleMouseDown);
-      }
-    };
-  }, [clonedPoint, onClonedPointMove, onClonedPointDrop]);
+  }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, routesData,, onPointClick, onClonedPointMove, onClonedPointDrop]);
 
   useEffect(() => {
     if (mapRef.current && mapRef.current.getSource('points')) {
@@ -206,6 +251,26 @@ const MapComponent = ({
       mapRef.current.getSource('routes').setData(routesData);
     }
   }, [pointsData, routesData]);
+
+  useEffect(() => {
+    if (!mapRef.current || !mapRef.current.getSource('cloned-points')) return;
+
+    if (clonedPoint) {
+      mapRef.current.getSource('cloned-points').setData({
+        type: 'FeatureCollection',
+        features: [clonedPoint]
+      });
+      console.log("cloned points should be visible", clonedPoint);
+    } else {
+      mapRef.current.getSource('cloned-points').setData({
+        type: 'FeatureCollection',
+        features: []
+      });
+      console.log("cloned points should be hidden");
+    }
+  }, [clonedPoint]);
+
+
 
 
   return <div ref={mapContainer} className="map-container" style={{ width: '80%', height: '600px' }} />;
