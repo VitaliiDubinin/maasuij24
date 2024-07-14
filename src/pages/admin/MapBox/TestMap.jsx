@@ -114,76 +114,7 @@ const TestMap = () => {
     }
   };
 
-  const onPointClick = (e) => {
-    const coordinates = e.features[0].geometry.coordinates.slice();
-    const pointId = e.features[0].properties.id;
-    const pointName = e.features[0].properties.name;
-    const pointCreator = e.features[0].properties.creator;
-
-    const newClonedPoint = {
-      type: 'Feature',
-      geometry: {
-        type: 'Point',
-        coordinates: coordinates
-      },
-      properties: {
-        id: pointId,
-        name: pointName,
-        creator: pointCreator
-      }
-    };
-
-    map.current.getSource('cloned-points').setData({
-      type: 'FeatureCollection',
-      features: [newClonedPoint]
-    });
-
-    dispatch(selectPoint({ point: { id: pointId, coordinates } }));
-
-
-    if (clonedPoint && clonedPoint.properties.id === pointId) {
-      // Deselect the point if it's already selected
-      dispatch(clearSelection());
-    } else {
-      // Select the point and set it as the cloned point
-      map.current.getSource('cloned-points').setData({
-        type: 'FeatureCollection',
-        features: [newClonedPoint]
-      });
-      dispatch(selectPoint({ point: { id: pointId, coordinates } }));
-    }
-
-
-    console.log("after dispatcher")
-    if (map.current) {
-      const isSelected = map.current.getFeatureState({
-        source: 'points',
-        id: pointId
-      }).selected;
-
-      map.current.setFeatureState(
-        { source: 'points', id: pointId },
-        { selected: !isSelected }
-      );
-    }
-  };
-
-  // useEffect(() => {
-  //   if (!map.current) return;
   
-  //   if (clonedPoint) {
-  //     map.current.getSource('cloned-points').setData({
-  //       type: 'FeatureCollection',
-  //       features: [clonedPoint]
-  //     });
-  //   } else {
-  //     map.current.getSource('cloned-points').setData({
-  //       type: 'FeatureCollection',
-  //       features: []
-  //     });
-  //   }
-  // }, [clonedPoint]);
-
   const deleteSelectedPoints = () => {
     selectedPoints.forEach(point => {
       deleteEntity.mutate(point.id);
@@ -269,7 +200,7 @@ const TestMap = () => {
         pointsData={spointsData}
         onDrawCreate={onDrawCreate}
         onDrawDelete={onDrawDelete}
-        onPointClick={onPointClick}
+        // onPointClick={onPointClick}
         updatePoints={updatePoints}
         mapRef={map}
         drawRef={draw}

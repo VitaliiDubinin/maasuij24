@@ -5,11 +5,9 @@ import { fetchAndUpdateEntities } from '../../lib/hooks/fetchAndUpdateEntities';
 
 export const useMapHandlers = (mapRef, queryClient, updateEntity, updatePoints) => {
   const dispatch = useDispatch();
-  const clonedPointRef = useRef();
-  const selectedPointsRef = useRef([]);
   const clonedPoint = useSelector(state => state.map.clonedPoint);
   const movedPoint = useSelector(state => state.map.clonedPoint);
-  const selectedPoints = useSelector(state => state.map.selectedPoints);
+  const selectedPoint = useSelector(state => state.map.selectedPoints);
 //  const pointsData = useSelector(state => state.map.pointsData);
  // console.log(selectedPoint)
 //  console.log({mapRef, queryClient, updateEntity, updatePoints})
@@ -20,19 +18,10 @@ export const useMapHandlers = (mapRef, queryClient, updateEntity, updatePoints) 
 //     }
 //   }, [clonedPoint, mapRef]);
 
-useEffect(() => {
-  clonedPointRef.current = clonedPoint;
-  selectedPointsRef.current = selectedPoints;
-}, [clonedPoint, selectedPoints]);
-
-if(clonedPointRef.current){
-//console.log("test")
-console.log(clonedPointRef.current.geometry.coordinates )
-}
 
   const onPointClick = (e) => {
     const feature = e.features[0];
-   console.log(feature)
+ //   console.log(feature)
     const newClonedPoint = {
       type: 'Feature',
       geometry: {
@@ -70,7 +59,6 @@ console.log(clonedPointRef.current.geometry.coordinates )
 //    console.log({mapRef, queryClient, updateEntity, updatePoints})
     if (!clonedPoint) return;
 
-//    console.log(clonedPointRef.current.geometry.coordinates )
     const newCoordinates = [e.lngLat.lng, e.lngLat.lat];
     const updatedClonedPoint = {
       ...clonedPoint,
@@ -88,17 +76,16 @@ console.log(clonedPointRef.current.geometry.coordinates )
     dispatch(updateClonedPoint({ clonedPoint: updatedClonedPoint }));
   };
 
-  //const onClonedPointDrop = async (clonedPoint) => {
-  const onClonedPointDrop = async () => {
-    console.log(clonedPointRef.current.geometry.coordinates )
-  //      console.log(clonedPoint)   
+  const onClonedPointDrop = async (clonedPoint, selectedPoints) => {
+//    const onClonedPointDrop = (clonedPoint, selectedPoints) => async () => {
+        console.log(clonedPoint)   
     if (!clonedPoint) return;
- //console.log(clonedPoint)
- //  console.log(selectedPoints[0].geometry.coordinates)
+ console.log(clonedPoint)
+   console.log(selectedPoint[0].geometry.coordinates)
    
 
-    const updatedCoordinates = clonedPointRef.current.geometry.coordinates;
-   // console.log(updatedCoordinates)
+    const updatedCoordinates = clonedPoint.geometry.coordinates;
+    console.log(updatedCoordinates)
     // const originalPointId = clonedPoint.properties.id;
 
     // const originalPoint = pointsData.features.find(point => point.properties.id === originalPointId);
@@ -106,8 +93,8 @@ console.log(clonedPointRef.current.geometry.coordinates )
 
     const updatedEntity = {
       persistent: {
-        id: selectedPoints[0].properties.id,
-        creator: selectedPoints[0].properties.creator
+        id: selectedPoint[0].properties.id,
+        creator: selectedPoint[0].properties.creator
       },
       point: {
         x: updatedCoordinates[0],

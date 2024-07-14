@@ -182,8 +182,9 @@ const MapComponent = ({
       mapRef.current.once('mouseup', () => {
         mapRef.current.getCanvas().style.cursor = '';
         mapRef.current.off('mousemove', onClonedPointMove);
-        console.log("clonedPoint", clonedPoint);
+        console.log("clonedPoint", clonedPoint.geometry.coordinates);
 //        movedPointRef.current = clonedPoint;
+       console.log(movedPointRef);
        // onClonedPointDrop(clonedPoint, selectedPoints);
         onClonedPointDrop();
       });
