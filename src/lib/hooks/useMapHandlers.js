@@ -8,31 +8,22 @@ export const useMapHandlers = (mapRef, queryClient, updateEntity, updatePoints) 
   const clonedPointRef = useRef();
   const selectedPointsRef = useRef([]);
   const clonedPoint = useSelector(state => state.map.clonedPoint);
-  const movedPoint = useSelector(state => state.map.clonedPoint);
   const selectedPoints = useSelector(state => state.map.selectedPoints);
-//  const pointsData = useSelector(state => state.map.pointsData);
- // console.log(selectedPoint)
-//  console.log({mapRef, queryClient, updateEntity, updatePoints})
+  const pointsData = useSelector(state => state.map.pointsData);
 
-//   useEffect(() => {
-//     if (mapRef.current) {
-//       mapRef.current.clonedPoint = clonedPoint;
-//     }
-//   }, [clonedPoint, mapRef]);
 
 useEffect(() => {
   clonedPointRef.current = clonedPoint;
   selectedPointsRef.current = selectedPoints;
 }, [clonedPoint, selectedPoints]);
 
-if(clonedPointRef.current){
-//console.log("test")
-console.log(clonedPointRef.current.geometry.coordinates )
-}
+// if(clonedPointRef.current){
+// console.log(clonedPointRef.current.geometry.coordinates )
+// }
 
   const onPointClick = (e) => {
     const feature = e.features[0];
-   console.log(feature)
+//   console.log(feature)
     const newClonedPoint = {
       type: 'Feature',
       geometry: {
@@ -88,9 +79,9 @@ console.log(clonedPointRef.current.geometry.coordinates )
     dispatch(updateClonedPoint({ clonedPoint: updatedClonedPoint }));
   };
 
-  //const onClonedPointDrop = async (clonedPoint) => {
+
   const onClonedPointDrop = async () => {
-    console.log(clonedPointRef.current.geometry.coordinates )
+   // console.log(clonedPointRef.current.geometry.coordinates )
   //      console.log(clonedPoint)   
     if (!clonedPoint) return;
  //console.log(clonedPoint)
@@ -118,7 +109,7 @@ console.log(clonedPointRef.current.geometry.coordinates )
     updateEntity.mutate(updatedEntity, {
       onSuccess: async () => {
         const updatedPointsData = await fetchAndUpdateEntities(queryClient);
-        console.log(updatedPointsData)
+//        console.log(updatedPointsData)
         updatePoints(updatedPointsData);
         if (mapRef.current.getSource('cloned-points')) {
           mapRef.current.getSource('cloned-points').setData({

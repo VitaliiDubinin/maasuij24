@@ -1,4 +1,4 @@
-// // src/mapSlice.js
+
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
@@ -40,28 +40,4 @@ export const { selectPoint, clearSelection, updateClonedPoint } = mapSlice.actio
 
 export default mapSlice.reducer;
 
-// mapSlice.js
-// import { createSlice } from '@reduxjs/toolkit';
 
-// export const mapSlice = createSlice({
-//   name: 'map',
-//   initialState: {
-//     selectedPoints: [],
-//     clonedPoint: null,
-//   },
-//   reducers: {
-//     selectPoint: (state, action) => {
-//       const point = action.payload.point;
-//       state.clonedPoint = point;
-//       state.selectedPoints.push(point);
-//     },
-//     clearSelection: (state) => {
-//       state.selectedPoints = [];
-//       state.clonedPoint = null;
-//     }
-//   },
-// });
-
-// export const { selectPoint, clearSelection } = mapSlice.actions;
-
-// export default mapSlice.reducer;

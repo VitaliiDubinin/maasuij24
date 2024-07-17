@@ -6,7 +6,7 @@ const useUpdateEntity = () => {
 
   return useMutation({
     mutationFn: async (entity) => {
-     console.log("from useUpdateHook entity", entity);
+//     console.log("from useUpdateHook entity", entity);
     //   await queryClient.invalidateQueries(["spoints"]);
     //   const cachedPointsData = queryClient.getQueryData(["spoints"]);
     // //  console.log("from useUpdateHook cachedPointsData", cachedPointsData);
