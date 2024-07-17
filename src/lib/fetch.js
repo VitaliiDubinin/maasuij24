@@ -31,6 +31,25 @@ export const createEntityForm = async (newent, enroute) => {
     console.error(`Error during creating Entity ${enroute}:`, error);
     throw error;
   }
+// }
+// catch (error)
+// {
+//  if (error.response && error.response.status === 409) {
+//    console.log("409 fetch Conflict, treating as normal response:", error.response);
+//    //return error.response;
+//    const templink = {
+//     number: 1,
+//     startPointId: 209,
+//     finishPointId: 208,
+//     stored: { id: 421, creator: 139, active: true },
+//     isProductive: false
+//   };
+//    //return {"stored":{id:878}}
+//    return templink
+//  } else {
+//    throw error;
+//  }
+// }
 };
 
 // export const createEntityForm = async (newent, enroute) => {

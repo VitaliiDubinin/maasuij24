@@ -9,22 +9,15 @@ export const useMapHandlers = (mapRef, queryClient, updateEntity, updatePoints) 
   const selectedPointsRef = useRef([]);
   const clonedPoint = useSelector(state => state.map.clonedPoint);
   const selectedPoints = useSelector(state => state.map.selectedPoints);
-  const pointsData = useSelector(state => state.map.pointsData);
+  //const pointsData = useSelector(state => state.map.pointsData);
 
 
 useEffect(() => {
   clonedPointRef.current = clonedPoint;
   selectedPointsRef.current = selectedPoints;
 }, [clonedPoint, selectedPoints]);
-
-// if(clonedPointRef.current){
-// console.log(clonedPointRef.current.geometry.coordinates )
-// }
-
   const onPointClick = (e) => {
     const feature = e.features[0];
-//   console.log(feature)
-//console.log("first point choosen")
     const newClonedPoint = {
       type: 'Feature',
       geometry: {
@@ -37,19 +30,16 @@ useEffect(() => {
         creator: feature.properties.creator
       }
     };
-    console.log("newClonedPoint",newClonedPoint)
+//    console.log("newClonedPoint",newClonedPoint)
     if (clonedPoint && clonedPoint.properties.id === feature.properties.id) {
       dispatch(clearSelection());
-    // } else {
-    //   dispatch(selectPoint({ point: newClonedPoint }));
-    // }
 
   } else if (selectedPointsRef.current.length === 1) {
 
-    console.log("SECOND point choosen")
-    console.log("newClonedPoint",newClonedPoint)
+//    console.log("SECOND point choosen")
+//    console.log("newClonedPoint",newClonedPoint)
       dispatch(selectPoint({ point: newClonedPoint }));
-      dispatch(createLinkAndRoute());
+//      dispatch(createLinkAndRoute());
     } else {
       dispatch(selectPoint({ point: newClonedPoint }));
     }
@@ -70,11 +60,7 @@ useEffect(() => {
   };
 
   const onClonedPointMove = (e) => {
-//    console.log(movedPoint)
-//    console.log({mapRef, queryClient, updateEntity, updatePoints})
     if (!clonedPoint) return;
-
-//    console.log(clonedPointRef.current.geometry.coordinates )
     const newCoordinates = [e.lngLat.lng, e.lngLat.lat];
     const updatedClonedPoint = {
       ...clonedPoint,
@@ -83,7 +69,6 @@ useEffect(() => {
         coordinates: newCoordinates
       }
     };
-//console.log(updatedClonedPoint.geometry.coordinates)
     mapRef.current.getSource('cloned-points').setData({
       type: 'FeatureCollection',
       features: [updatedClonedPoint]
@@ -94,20 +79,13 @@ useEffect(() => {
 
 
   const onClonedPointDrop = async () => {
-   // console.log(clonedPointRef.current.geometry.coordinates )
-  //      console.log(clonedPoint)   
     if (!clonedPoint) return;
- //console.log(clonedPoint)
- //  console.log(selectedPoints[0].geometry.coordinates)
- const selectedPoint = selectedPointsRef.current[0];
- if (!selectedPoint) return;
+
+    const selectedPoint = selectedPointsRef.current[0];
+    if (!selectedPoint) return;
 
     const updatedCoordinates = clonedPointRef.current.geometry.coordinates;
-   // console.log(updatedCoordinates)
-    // const originalPointId = clonedPoint.properties.id;
 
-    // const originalPoint = pointsData.features.find(point => point.properties.id === originalPointId);
-    // if (!originalPoint) return;
 
     const updatedEntity = {
       persistent: {
@@ -123,7 +101,6 @@ useEffect(() => {
     updateEntity.mutate(updatedEntity, {
       onSuccess: async () => {
         const updatedPointsData = await fetchAndUpdateEntities(queryClient);
-//        console.log(updatedPointsData)
         updatePoints(updatedPointsData);
         if (mapRef.current.getSource('cloned-points')) {
           mapRef.current.getSource('cloned-points').setData({

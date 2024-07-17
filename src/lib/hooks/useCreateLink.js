@@ -1,18 +1,14 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 import { createEntityForm } from '../fetch';
-import { fetchAndUpdateEntities } from './fetchAndUpdateEntities';
+
 
 const useCreateLink = () => {
-  const queryClient = useQueryClient();
+
 
   return useMutation({
     mutationFn: async (entity) => {
-      console.log(entity)
-//       const number = new Date().getTime().toString().slice(-4);
        const enroute = `/link/create`;
        const reqbody = {
-    //    number: 46,
-        //number: parseInt(number, 10),
         number: null,
         startPointId: entity[0].properties.id.slice(5),
         finishPointId: entity[1].properties.id.slice(5),
@@ -24,16 +20,18 @@ const useCreateLink = () => {
         }     
     }
 
-//    console.log(reqbody)
 
-       const response = await createEntityForm(reqbody, enroute);
-       console.log("created Link ID",response)
-      return response;
+
+      const response = await createEntityForm(reqbody, enroute);
+//      console.log("created Link ID",response)
+     return response;
       // try {
       //   const response = await createEntityForm(reqbody, enroute);
       //   console.log("created Link ID", response);
-      //   return response;
-      // } catch (error) {
+      //  return response;
+      // }
+      //  catch (error)
+      // {
       //   if (error.response && error.response.status === 409) {
       //     console.log("409 Conflict, treating as normal response:", error.response.data.message);
       //     return error.response;

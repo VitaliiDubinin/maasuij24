@@ -47,9 +47,10 @@ const TestMap = () => {
       setIsLinkCreating(true);
       createLink.mutate(selectedPoints, {
         onSuccess: async (l) => {
+//          console.log(l)
           const linkid = l.stored.id;
           setIsLinkCreating(false);
-          console.log(selectedPoints)
+//          console.log(selectedPoints)
           const lineCoordinates = selectedPoints.map(point => point.geometry.coordinates);
 
           createRoute(lineCoordinates, linkid);
@@ -124,7 +125,7 @@ const TestMap = () => {
   };
 
   const createRoute = (coords, linkid) => {
-    console.log(coords)
+//    console.log(coords)
     const profile = 'driving';
     const newCoords = coords.map(coord => `${coord[0]},${coord[1]}`).join(';');
     const radius = coords.map(() => 25);
