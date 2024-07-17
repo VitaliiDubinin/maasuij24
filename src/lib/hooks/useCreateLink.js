@@ -7,15 +7,15 @@ const useCreateLink = () => {
 
   return useMutation({
     mutationFn: async (entity) => {
-//      console.log(entity)
-       const number = new Date().getTime().toString().slice(-4);
+      console.log(entity)
+//       const number = new Date().getTime().toString().slice(-4);
        const enroute = `/link/create`;
        const reqbody = {
     //    number: 46,
         //number: parseInt(number, 10),
         number: null,
-        startPointId: entity[0].id.slice(5),
-        finishPointId: entity[1].id.slice(5),
+        startPointId: entity[0].properties.id.slice(5),
+        finishPointId: entity[1].properties.id.slice(5),
         productive: true,
         stored: {
             id: null,

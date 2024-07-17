@@ -32,13 +32,13 @@ const MapComponent = ({
   const mapContainer = useRef(null);
   const updateEntity = useUpdateEntity();
   const { onPointClick, onClonedPointMove, onClonedPointDrop } = useMapHandlers(mapRef, queryClient, updateEntity, updatePoints);
-  const dispatch = useDispatch();
+
 
 
   const clonedPoint = useSelector(state => state.map.clonedPoint);
-  const selectedPoints = useSelector(state => state.map.selectedPoints);
 
-  const movedPointRef = useRef(clonedPoint); 
+
+//  const movedPointRef = useRef(clonedPoint); 
 
 
   useEffect(() => {
@@ -182,9 +182,9 @@ const MapComponent = ({
       mapRef.current.once('mouseup', () => {
         mapRef.current.getCanvas().style.cursor = '';
         mapRef.current.off('mousemove', onClonedPointMove);
-        console.log("clonedPoint", clonedPoint.geometry.coordinates);
+//        console.log("clonedPoint", clonedPoint.geometry.coordinates);
 //        movedPointRef.current = clonedPoint;
-       console.log(movedPointRef);
+//       console.log(movedPointRef);
        // onClonedPointDrop(clonedPoint, selectedPoints);
         onClonedPointDrop();
       });

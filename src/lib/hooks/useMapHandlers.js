@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { clearSelection, selectPoint, updateClonedPoint } from '../../mapSlice';
+import { clearSelection, selectPoint, updateClonedPoint, createLinkAndRoute } from '../../mapSlice';
 import { fetchAndUpdateEntities } from '../../lib/hooks/fetchAndUpdateEntities';
 
 export const useMapHandlers = (mapRef, queryClient, updateEntity, updatePoints) => {
@@ -24,6 +24,7 @@ useEffect(() => {
   const onPointClick = (e) => {
     const feature = e.features[0];
 //   console.log(feature)
+//console.log("first point choosen")
     const newClonedPoint = {
       type: 'Feature',
       geometry: {
@@ -36,12 +37,24 @@ useEffect(() => {
         creator: feature.properties.creator
       }
     };
-
+    console.log("newClonedPoint",newClonedPoint)
     if (clonedPoint && clonedPoint.properties.id === feature.properties.id) {
       dispatch(clearSelection());
+    // } else {
+    //   dispatch(selectPoint({ point: newClonedPoint }));
+    // }
+
+  } else if (selectedPointsRef.current.length === 1) {
+
+    console.log("SECOND point choosen")
+    console.log("newClonedPoint",newClonedPoint)
+      dispatch(selectPoint({ point: newClonedPoint }));
+      dispatch(createLinkAndRoute());
     } else {
       dispatch(selectPoint({ point: newClonedPoint }));
     }
+
+  
 
     if (mapRef.current) {
       const isSelected = mapRef.current.getFeatureState({
@@ -86,7 +99,8 @@ useEffect(() => {
     if (!clonedPoint) return;
  //console.log(clonedPoint)
  //  console.log(selectedPoints[0].geometry.coordinates)
-   
+ const selectedPoint = selectedPointsRef.current[0];
+ if (!selectedPoint) return;
 
     const updatedCoordinates = clonedPointRef.current.geometry.coordinates;
    // console.log(updatedCoordinates)
