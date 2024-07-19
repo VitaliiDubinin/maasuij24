@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { createEntityForm } from '../fetch';
+import { createEntityForm } from '../api/fetch';
 import { fetchAndUpdateEntities } from './fetchAndUpdateEntities';
 
 const useCreateEntity = () => {

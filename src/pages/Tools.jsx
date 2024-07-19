@@ -1,5 +1,5 @@
 import React from 'react';
-import DataVisualization from '../layouts/datavizual/DataVizualization';
+// import DataVisualization from '../layouts/datavizual/DataVizualization';
 
 const Tools = () => {
   //const data = [3, 5, 2, 8, 4];
@@ -8,7 +8,7 @@ const Tools = () => {
   return (
     <div className="App">
       <h1>Data Visualization</h1>
-      <DataVisualization data={data} />
+      {/* <DataVisualization data={data} /> */}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { createEntityForm } from '../fetch';
+import { createEntityForm } from '../api/fetch';
 
 
 const useCreateLink = () => {

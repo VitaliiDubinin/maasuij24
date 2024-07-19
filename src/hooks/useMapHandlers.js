@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { useSelector, useDispatch } from 'react-redux';
-import { clearSelection, selectPoint, updateClonedPoint, createLinkAndRoute } from '../../mapSlice';
-import { fetchAndUpdateEntities } from '../../lib/hooks/fetchAndUpdateEntities';
+import { clearSelection, selectPoint, updateClonedPoint, createLinkAndRoute } from '../store/mapSlice';
+import { fetchAndUpdateEntities } from './fetchAndUpdateEntities';
 
 export const useMapHandlers = (mapRef, queryClient, updateEntity, updatePoints) => {
   const dispatch = useDispatch();

@@ -1,18 +1,18 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useGetEntity } from '../../../lib/hooks/useGetEntity';
-import { useGetRoutes } from '../../../lib/hooks/useGetRoutes';
-import useCreateEntity from '../../../lib/hooks/useCreateEntity';
-import useDeleteEntity from '../../../lib/hooks/useDeleteEntity';
-import useCreateLink from '../../../lib/hooks/useCreateLink';
-import { fetchAndUpdateEntities } from '../../../lib/hooks/fetchAndUpdateEntities';
+import { useGetEntity } from '../../../hooks/useGetEntity';
+import { useGetRoutes } from '../../../hooks/useGetRoutes';
+import useCreateEntity from '../../../hooks/useCreateEntity';
+import useDeleteEntity from '../../../hooks/useDeleteEntity';
+import useCreateLink from '../../../hooks/useCreateLink';
+import { fetchAndUpdateEntities } from '../../../hooks/fetchAndUpdateEntities';
 import MapComponent from "../../../components/mapbox/MapComponent";
 import Sidebar from "../../../components/mapbox/SideBar";
 import InfoBox from "../../../components/mapbox/InfoBox";
 import { useQueryClient } from '@tanstack/react-query';
-import { useCreateLinkPath } from '../../../lib/hooks/useCreateLinkPath';
-import { handleDrawCreate } from '../../../lib/hooks/handleDrawCreate';
+import { useCreateLinkPath } from '../../../hooks/useCreateLinkPath';
+import { handleDrawCreate } from '../../../hooks/handleDrawCreate';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectPoint, clearSelection } from '../../../mapSlice';
+import { selectPoint, clearSelection } from '../../../store/mapSlice';
 
 const TestMap = () => {
   const dispatch = useDispatch();

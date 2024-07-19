@@ -19,7 +19,7 @@ import {
   createEntityForm,
   updateEntityForm,
   deleteEntity,
-} from "../../../lib/fetch";
+} from "../../../api/fetch";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";

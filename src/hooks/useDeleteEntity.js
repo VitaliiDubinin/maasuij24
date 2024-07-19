@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteEntity } from '../fetch';
+import { deleteEntity } from '../api/fetch';
 
 const useDeleteEntity = () => {
   const queryClient = useQueryClient();

@@ -24,7 +24,7 @@ import {
   createEntityForm,
   updateEntityForm,
   deleteEntity,
-} from "../../../lib/fetch";
+} from "../../../api/fetch";
 
 
 const validateRequired = (value) =>

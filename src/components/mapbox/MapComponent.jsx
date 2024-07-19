@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import useUpdateEntity from '../../lib/hooks/useUpdateEntity';
-import { fetchAndUpdateEntities } from '../../lib/hooks/fetchAndUpdateEntities';
+import useUpdateEntity from '../../hooks/useUpdateEntity';
+import { fetchAndUpdateEntities } from '../../hooks/fetchAndUpdateEntities';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSelector, useDispatch } from 'react-redux';
-import { clearSelection, selectPoint,updateClonedPoint } from '../../mapSlice';
-import { useMapHandlers } from '../../lib/hooks/useMapHandlers';
+import { clearSelection, selectPoint,updateClonedPoint } from '../../store/mapSlice';
+import { useMapHandlers } from '../../hooks/useMapHandlers';
 
 
 mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;

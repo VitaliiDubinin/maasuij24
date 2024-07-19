@@ -76,15 +76,12 @@ export default function ColButGroup({ colbut }) {
         variant={leftGroupOpen ? 'contained' : 'outlined'}
         endIcon={leftGroupOpen && <ExpandMoreIcon />}
       >
-        {/* Stopping Points
-        {leftGroupOpen ? <ExpandMoreIcon /> : null} */}
-        {/* Stopping Points {leftGroupOpen && <ExpandMoreIcon />} */}
         {!leftGroupOpen && 'Stopping Points'}
       </Button>
       {leftGroupOpen && (
         <ButtonGroup sx={buttonGroupStyle}>
           <Button sx={buttonStyle}>Stops</Button>
-          <Button sx={buttonStyle}>Stops</Button>
+          <Button sx={buttonStyle}>Stop Points</Button>
           <Button sx={buttonStyle}>Links</Button>
 
           <Button sx={buttonStyle}>Link's path</Button>
@@ -99,7 +96,6 @@ export default function ColButGroup({ colbut }) {
         variant={centerGroupOpen ? 'contained' : 'outlined'}
         endIcon={centerGroupOpen && <ExpandMoreIcon />}
       >
-        {/* Schedules {centerGroupOpen ? <ExpandMoreIcon /> : null} */}
         {!centerGroupOpen && 'Schedules'}
       </Button>
       {centerGroupOpen && (
@@ -117,7 +113,6 @@ export default function ColButGroup({ colbut }) {
         variant={rightGroupOpen ? 'contained' : 'outlined'}
         endIcon={rightGroupOpen && <ExpandMoreIcon />}
       >
-        {/* Tools {rightGroupOpen ? <ExpandMoreIcon /> : null} */}
         {!rightGroupOpen && 'Tools'}
       </Button>
       {rightGroupOpen && (

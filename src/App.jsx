@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './App.css';
-import ApiRequest from './ApiRequest.js';
+// import ApiRequest from './ApiRequest.js';
 import Tools from './pages/Tools.jsx';
 import Stops from './pages/admin/Stops/Stops.jsx';
 import Testmap from './pages/admin/MapBox/TestMap.jsx';
@@ -10,7 +10,7 @@ import RouteManagement from './pages/admin/RouteManagement/RouteManagement.jsx';
 import RouteVariant from './pages/admin/RouteVariant/RouteVariant.jsx';
 import LinkPaths from './pages/admin/LinkPaths/LinkPaths.jsx';
 import LinkSequences from './pages/admin/LinkSequences/LinkSequences.jsx'
-import Leafletwindow from './components/leafmap/Leafletwindow.js';
+// import Leafletwindow from './components/leafmap/Leafletwindow.js';
 import ColButGroup from './components/button/ColButGroup.js';
 import PersistentDrawerTop from './layouts/PersistentDrawerTop/PersistentDrawerTop.js';
 import {
@@ -26,7 +26,7 @@ import {
 } from './config/themeConfig.js';
 import DataTable from './pages/admin/DataTable/DataTable.js';
 import { Provider } from 'react-redux';
-import store from './store';
+import store from './store/store.js';
 
 
 function App() {
@@ -72,11 +72,11 @@ function App() {
         <Routes>
           <Route path="" element={<PersistentDrawerTop />}>
             <Route path="home" element={<ColButGroup colbut="white" />} />
-            <Route path="tno" element={<Leafletwindow />} />
+            {/* <Route path="tno" element={<Leafletwindow />} /> */}
 
             <Route path="mbox" element={<Testmap />} />
 
-            <Route path="schedules" element={<ApiRequest />} />
+            {/* <Route path="schedules" element={<ApiRequest />} /> */}
             <Route path="tools" element={<Tools />} />
             <Route path="stops" element={<Stops />} />
             <Route path="spoints" element={<StopPoints />} />

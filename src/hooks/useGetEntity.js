@@ -1,6 +1,6 @@
 // hooks/useGetEntity.js
 import { useQuery } from '@tanstack/react-query';
- import { getData } from '../fetch';
+ import { getData } from '../api/fetch';
 
 
 
