@@ -125,10 +125,31 @@ const TestMap = () => {
   };
 
   const createRoute = (coords, linkid) => {
-//    console.log(coords)
+    console.log(coords)
     const profile = 'driving';
-    const newCoords = coords.map(coord => `${coord[0]},${coord[1]}`).join(';');
-    const radius = coords.map(() => 25);
+//    const newCoords = coords.map(coord => `${coord[0]},${coord[1]}`).join(';');
+    const real_values = [[27.59188413619995, 42.65124234108484]]
+  //  const real_values = [[27.59169101715088,	42.70019440225141], [27.584223747253418,	42.68024277138181]];
+ //   const newCoords = `${coords[0][0]},${coords[0][1]};${real_values[0]},${real_values[1]};${coords[1][0]},${coords[1][1]}`
+
+ let newCoordsArray = [`${coords[0][0]},${coords[0][1]}`];
+ real_values.forEach(point => {
+     newCoordsArray.push(`${point[0]},${point[1]}`);
+ });
+ newCoordsArray.push(`${coords[1][0]},${coords[1][1]}`);
+ 
+ const newCoords = newCoordsArray.join(';');
+
+   console.log(newCoords)
+   //    const radius = newCoords.map(() => 25);
+    // const radius = coords.map(() => 25);
+    // radius.push(25); 
+    const radius = [25];  
+real_values.forEach(() => {
+    radius.push(25);  
+});
+radius.push(25); 
+
     getMatch(newCoords, radius, profile, linkid);
   };
 

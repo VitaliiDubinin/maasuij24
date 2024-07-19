@@ -16,6 +16,8 @@ useEffect(() => {
   clonedPointRef.current = clonedPoint;
   selectedPointsRef.current = selectedPoints;
 }, [clonedPoint, selectedPoints]);
+
+
   const onPointClick = (e) => {
     const feature = e.features[0];
     const newClonedPoint = {
@@ -34,12 +36,12 @@ useEffect(() => {
     if (clonedPoint && clonedPoint.properties.id === feature.properties.id) {
       dispatch(clearSelection());
 
-  } else if (selectedPointsRef.current.length === 1) {
+//   } else if (selectedPointsRef.current.length === 1) {
 
-//    console.log("SECOND point choosen")
-//    console.log("newClonedPoint",newClonedPoint)
-      dispatch(selectPoint({ point: newClonedPoint }));
-//      dispatch(createLinkAndRoute());
+// //    console.log("SECOND point choosen")
+// //    console.log("newClonedPoint",newClonedPoint)
+//       dispatch(selectPoint({ point: newClonedPoint }));
+// //      dispatch(createLinkAndRoute());
     } else {
       dispatch(selectPoint({ point: newClonedPoint }));
     }

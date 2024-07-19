@@ -133,20 +133,6 @@ const MapComponent = ({
       mapRef.current.on('draw.create', onDrawCreate);
       mapRef.current.on('draw.update', updateRoute);
       mapRef.current.on('draw.delete', onDrawDelete);
-
- 
-      // mapRef.current.on('mousedown', 'cloned-points', (e) => {
-      //   console.log(e)
-      //   console.log("points choosen", clonedPoint)
-      //   e.preventDefault();
-      //   mapRef.current.getCanvas().style.cursor = 'grabbing';
-      //   mapRef.current.on('mousemove', onClonedPointMove);
-      //   mapRef.current.once('mouseup', () => {
-      //     mapRef.current.getCanvas().style.cursor = '';
-      //     mapRef.current.off('mousemove', onClonedPointMove);
-      //     onClonedPointDrop();
-      //   });
-      // });
     });
   }, [lng, lat, zoom, onMove, pointsData, onDrawCreate, onDrawDelete, routesData, onPointClick, updateRoute]);
 
