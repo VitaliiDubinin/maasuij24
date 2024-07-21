@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import useUpdateEntity from '../../hooks/useUpdateEntity';
+import {useGetRelatedLinkPaths} from '../../hooks/useGetLinkPathRelStopPoint';
 import { fetchAndUpdateEntities } from '../../hooks/fetchAndUpdateEntities';
 import '@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css';
 import { useQueryClient } from '@tanstack/react-query';
@@ -31,7 +32,9 @@ const MapComponent = ({
   const queryClient = useQueryClient();
   const mapContainer = useRef(null);
   const updateEntity = useUpdateEntity();
-  const { onPointClick, onClonedPointMove, onClonedPointDrop } = useMapHandlers(mapRef, queryClient, updateEntity, updatePoints);
+ // const updateRelatedLinkPaths = useGetRelatedLinkPaths();
+ // const { onPointClick, onClonedPointMove, onClonedPointDrop } = useMapHandlers(mapRef, queryClient, updateEntity, updatePoints, updateRelatedLinkPaths);
+ const { onPointClick, onClonedPointMove, onClonedPointDrop } = useMapHandlers(mapRef, queryClient, updateEntity, updatePoints);
 
 
 
