@@ -1,4 +1,3 @@
-
 import axios from "axios";
 
 const apiKey = process.env.REACT_APP_BE_API_KEY;
@@ -31,47 +30,8 @@ export const createEntityForm = async (newent, enroute) => {
     console.error(`Error during creating Entity ${enroute}:`, error);
     throw error;
   }
-// }
-// catch (error)
-// {
-//  if (error.response && error.response.status === 409) {
-//    console.log("409 fetch Conflict, treating as normal response:", error.response);
-//    //return error.response;
-//    const templink = {
-//     number: 1,
-//     startPointId: 209,
-//     finishPointId: 208,
-//     stored: { id: 421, creator: 139, active: true },
-//     isProductive: false
-//   };
-//    //return {"stored":{id:878}}
-//    return templink
-//  } else {
-//    throw error;
-//  }
-// }
 };
 
-// export const createEntityForm = async (newent, enroute) => {
-//   try {
-//     const requestBody = JSON.stringify(newent);
-//     const headers = {
-//       "Content-Type": "application/json",
-//       api_key: apiKey,
-//     };
-
-//     const response = await axios.post(`${baseUrl}${enroute}`, requestBody, { headers });
-//     return response.data;
-//   } catch (error) {
-//     if (error.response && error.response.status === 409) {
-//       console.log("409 Conflict, treating as normal response:", error.response.data.message);
-//       return error.response.data; // Return the response data instead of throwing the error
-//     } else {
-//       console.error("Error creating entity:", error);
-//       throw error; // Re-throw the error if it's not a 409
-//     }
-//   }
-// };
 
 export async function updateEntityForm(values, enroute) {
   try {
