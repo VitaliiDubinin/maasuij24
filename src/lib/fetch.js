@@ -3,11 +3,16 @@ import axios from "axios";
 
 const apiKey = process.env.REACT_APP_BE_API_KEY;
 const baseUrl = process.env.REACT_APP_BE_API_URL;
-
+const tempbear = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJiYXJrbGF5QGRlLnRvbGxpIiwiaWF0IjoxNzI2MjMyODgyLCJleHAiOjE3MjYyMzM3ODJ9.yIL1UUalcAtJnpltEide9rEgU6Lgc07m9z6uE1yJbtM";
+const     headersstring = {
+  "Content-Type": "application/json",
+  api_key: apiKey,
+  Authorization: `Bearer ${tempbear}`, 
+};
 
 export const getData = async (endpoint) => {
   const response = await axios.get(`${baseUrl}/${endpoint}`, {
-    headers: { "Content-Type": "application/json", api_key: apiKey },
+    headers: headersstring,
   });
   return response;
 };
@@ -17,13 +22,10 @@ export const createEntityForm = async (newent, enroute) => {
    const requestBody = JSON.stringify(newent);
    //const requestBody = newent;
 //console.log(requestBody)
-    const headers = {
-      "Content-Type": "application/json",
-      api_key: apiKey,
-    };
+
 
     const response = await axios.post(`${baseUrl}${enroute}`, requestBody, {
-      headers,
+      headers: headersstring,
     });
 
     return response.data;
@@ -77,13 +79,9 @@ export async function updateEntityForm(values, enroute) {
   try {
     const requestBody = JSON.stringify(values);
 
-    const headers = {
-      "Content-Type": "application/json",
-      api_key: apiKey,
-    };
 
     const response = await axios.put(`${baseUrl}${enroute}`, requestBody, {
-      headers,
+      headers: headersstring,
     });
 
     return response.data;
@@ -95,13 +93,10 @@ export async function updateEntityForm(values, enroute) {
 
 export async function deleteEntity(entityId, enroute) {
   try {
-    const headers = {
-      "Content-Type": "application/json",
-      api_key: apiKey,
-    };
+
 
     const response = await axios.delete(`${baseUrl}${enroute}${entityId}`, {
-      headers,
+      headers: headersstring
     });
 //    console.log("DELETE Request Response:", response.data);
     return response.data;

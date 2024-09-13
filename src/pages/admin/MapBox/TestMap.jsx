@@ -106,7 +106,7 @@ const TestMap = () => {
             ...f.properties,
             id: f.id,
             name: f.properties.name || "Unnamed Point",
-            creator: f.properties.creator || 138
+            creator: f.properties.creator || "9e39d679-6267-4698-9859-db6bd20770d7"
           }
         }))
       ]
@@ -119,7 +119,8 @@ const TestMap = () => {
   
   const deleteSelectedPoints = () => {
     selectedPoints.forEach(point => {
-      deleteEntity.mutate(point.id);
+//      console.log(point.properties.id)
+      deleteEntity.mutate(point.properties.id);
     });
     dispatch(clearSelection());
   };
@@ -160,14 +161,14 @@ const TestMap = () => {
       linkId: linkid,
       stored: {
         id: null,
-        creator: 10,
+        creator: "9e39d679-6267-4698-9859-db6bd20770d8",
         active: false
       },
       linkPoints: route.coordinates.slice(1, -1).map((coord, index) => ({
         number: index + 1,
         stored: {
           id: null,
-          creator: 138,
+          creator: "9e39d679-6267-4698-9859-db6bd20770d8",
           active: null
         },
         coordinates: {

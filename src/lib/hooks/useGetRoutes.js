@@ -10,7 +10,7 @@ const convertToGeoJSON = (data) => {
       const linkPointsWithStartFinish = [
         {
           pointNum: 0, 
-          coord: item.startPoint.point
+          coord: item.startPoint
         },
         ...item.linkPoints.map(point => ({
           pointNum: point.number,
@@ -18,14 +18,14 @@ const convertToGeoJSON = (data) => {
         })),
         {
           pointNum: item.linkPoints.length + 1, 
-          coord: item.finishPoint.point
+          coord: item.finishPoint
         }
       ];
 
       const coordinatesWithStartFinish = [
-        [item.startPoint.point.x, item.startPoint.point.y],
+        [item.startPoint.x, item.startPoint.y],
         ...item.linkPoints.map(point => [point.coordinates.x, point.coordinates.y]),
-        [item.finishPoint.point.x, item.finishPoint.point.y]
+        [item.finishPoint.x, item.finishPoint.y]
       ];
       return {
         type: 'Feature',

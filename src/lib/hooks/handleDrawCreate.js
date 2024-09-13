@@ -13,7 +13,7 @@ export const handleDrawCreate = (e, spointsData, createEntity, queryClient, map,
             id: null,
             name: pointName,
             description: null,
-            creator: 133,
+            creator: "9e39d679-6267-4698-9859-db6bd20770d7",
             locales: [],
             active: null
           },
@@ -34,6 +34,7 @@ export const handleDrawCreate = (e, spointsData, createEntity, queryClient, map,
             if (map.current && map.current.getSource('points')) {
               map.current.getSource('points').setData(updatedPointsData);
             }
+            draw.current.delete(newFeature.id);
           }
         });
       } else {
